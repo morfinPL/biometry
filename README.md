@@ -63,7 +63,7 @@ cmake --build . --config Release
 cmake --build . --config Release --target INSTALL
 ```
 
-At the end you must set environmental variable **OPENCV_DIR** to **YOUR_OPENCV_INSTALL_DIR**. You also should add **%OPENCV_DIR\x64\vc16\bin%** to path, but you must check **x64\vc16** part, it depends on Visual Studio version and selected architecture. This directory, in path, enables dynamic linking of OpenCV. If you use other architecture Now you can delete build and cloned repositories.
+At the end you must set environmental variable **OPENCV_DIR** to **YOUR_OPENCV_INSTALL_DIR**. You also should add **%OPENCV_DIR%\x64\vc16\bin** to path, but you must check **x64\vc16** part, it depends on Visual Studio version and selected architecture. This directory, in path, enables dynamic linking of OpenCV. If you use other architecture Now you can delete build and cloned repositories.
 
 ## CMake configuration of a project
 
