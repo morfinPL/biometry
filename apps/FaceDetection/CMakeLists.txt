@@ -6,6 +6,7 @@ set(LIBS ${LIBS} opencv_highgui)
 set(LIBS ${LIBS} Configuration)
 set(LIBS ${LIBS} IO)
 set(LIBS ${LIBS} FeatureExtraction)
+set(LIBS ${LIBS} Classification)
 
 set(SOURCES
 	src/main.cpp
@@ -16,6 +17,7 @@ include_directories(
 	${CMAKE_CURRENT_SOURCE_DIR}/../../libs/Configuration/include
 	${CMAKE_CURRENT_SOURCE_DIR}/../../libs/IO/include
 	${CMAKE_CURRENT_SOURCE_DIR}/../../libs/FeatureExtraction/include
+	${CMAKE_CURRENT_SOURCE_DIR}/../../libs/Classification/include
 )
 add_executable(${PROJECT_NAME} ${SOURCES})
 set_target_properties(${PROJECT_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin/apps)
