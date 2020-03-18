@@ -80,3 +80,11 @@ After successful configuration you can open Biometry.sln and work with Visual St
 ```
 cmake --build . --config=[Realse|Debug]
 ```
+
+## Run FaceDetection
+
+Our sample app makes classification of faces, implemented method is based on Local Binary Patterns Histograms(see [Face Recognition with OpenCV](https://docs.opencv.org/4.2.0/da/d60/tutorial_face_main.html)) and Nearest Neighbour Classification. To run it with Georgia Tech dataset available with our repository you must run this executable like this:
+```
+FaceDetection.exe --dataset ..\..\..\..\testData\GeorgiaTechDatabaseCropped --extension .jpg --testNumber 2
+```
+With above configuration we get 81 % of successful classification!

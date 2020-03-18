@@ -12,7 +12,8 @@
 #include <FeatureExtraction.h>
 #include <Classification.h>
 
-namespace {
+namespace
+{
 	inline std::pair<std::map<int, std::vector<cv::Mat>>, std::map<int, std::vector<cv::Mat>>> dataPartition(const int numberOfImagesInTestData, const std::map<int, std::vector<cv::Mat>>& dataset)
 	{
 		std::map<int, std::vector<cv::Mat>> train(dataset.cbegin(), dataset.cend());
@@ -59,11 +60,22 @@ namespace {
 
 int main(const int argc, const char **argv)
 {
+	if (argc != 7)
+	{
+		std::cout << "You provide wrong number of parameters!" << std::endl;
+		std::cout << "You should provide 3 flags and after each flag value!" << std::endl;
+		std::cout << "Example: --dataset ..\\..\\..\\testData\\GeorgiaTechDatabaseCropped --extension .jpg --testNumber 2" << std::endl;
+		std::cout << "--dataset - path to your dataset," << std::endl;
+		std::cout << "--extension - extension of images to read," << std::endl;
+		std::cout << "--testNumber - number of image per class in test set." << std::endl;
+		return 1;
+	}
 	const auto params = Configuration::parseParameters(argc, argv);
-	const auto datasetPath = "..\\..\\..\\testData\\GeorgiaTechDatabaseCropped";
-	const auto extension = ".jpg";
+	const auto datasetPath = params.at("--dataset");
+	const auto extension = params.at("--extension");
+	const auto testNumber = std::stoi(params.at("--testNumber"));
 	const auto dataset = IO::readGrayscaleDataset(datasetPath, extension);
-	const auto [trainDataset, testDataset] = dataPartition(2, dataset);
+	const auto [trainDataset, testDataset] = dataPartition(testNumber, dataset);
 	const auto [trainY, trainFeatures] = extractFeatures(trainDataset, FeatureExtraction::localBinaryPatternsHistogram);
 	const auto [testY, testFeatures] = extractFeatures(testDataset, FeatureExtraction::localBinaryPatternsHistogram);
 	const auto classifier = Classification::NNClassifier(trainY, trainFeatures);
@@ -73,6 +85,6 @@ int main(const int argc, const char **argv)
 		std::cout << "Ground truth: " << testY[i] << " Result: " << results[i] << std::endl;
 	}
 	const auto correct = correctResults(testY, results);
-	std::cout << "Raport: " << correct << " / " << static_cast<int>(testY.size()) << " correct, percentage: " << std::setprecision(2) << correct / static_cast<double>(testY.size()) * 100 <<  " %!" << std::endl;
+	std::cout << "Raport: " << correct << " / " << static_cast<int>(testY.size()) << " correct, percentage: " << std::setprecision(2) << correct / static_cast<double>(testY.size()) * 100 << " %!" << std::endl;
 	return 0;
 }
