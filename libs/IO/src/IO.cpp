@@ -1,5 +1,6 @@
 #include <IO.h>
 
+#include <iostream>
 #include <filesystem>
 
 #include <opencv2/imgcodecs/imgcodecs.hpp>
@@ -43,4 +44,22 @@ std::vector<cv::Mat> IO::readGrayImages(const std::vector<std::string>& paths)
 		images.emplace_back(image);
 	}
 	return images;
+}
+
+std::map<int, std::vector<cv::Mat>> IO::readGrayscaleDataset(const std::string& datasetPath, const std::string& extension)
+{
+	std::map<int, std::vector<cv::Mat>> dataset;
+	for (const auto& p : std::filesystem::directory_iterator(datasetPath))
+	{
+		if (p.is_directory())
+		{
+			const auto label = std::stoi(p.path().filename());
+			const auto images = readGrayImages(findImagesWithExtensionsInDirectory(p.path().string(), extension));
+			for (const auto& image : images)
+			{
+				dataset.emplace(label, images);
+			}
+		}
+	}
+	return dataset;
 }
