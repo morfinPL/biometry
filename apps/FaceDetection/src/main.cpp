@@ -8,24 +8,14 @@
 #include <Configuration.h>
 #include <IO.h>
 
-
-
 int main(const int argc, const char **argv)
 {
 	const auto params = Configuration::parseParameters(argc, argv);
-	const auto sampleFacesDir = "..\\..\\..\\testData\\sampleFaces";
-	const auto extension = ".png";
-	const auto imagePaths = IO::findImagesWithExtensionsInDirectory(sampleFacesDir, extension);
-	std::cout << "The following images are founded:" << std::endl;
-	for (const auto &path : imagePaths)
-	{
-		std::cout << path << std::endl;
-	}
-	const auto images = IO::readGrayImages(imagePaths);
-	for (const auto &image : images)
-	{
-		cv::imshow("Image", image);
-		cv::waitKey();
-	}
+	const auto datasetPath = "..\\..\\..\\testData\\GeorgiaTechDatabaseCropped";
+	const auto extension = ".jpg";
+	const auto dataset = IO::readGrayscaleDataset(datasetPath, extension);
+	std::cout << dataset.size() << std::endl;
+	cv::imshow("Face", dataset.begin()->second.front());
+	cv::waitKey();
 	return 0;
 }
