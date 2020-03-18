@@ -88,3 +88,4 @@ Our sample app makes classification of faces, implemented method is based on Loc
 FaceDetection.exe --dataset ..\..\..\..\testData\GeorgiaTechDatabaseCropped --extension .jpg --testNumber 2
 ```
 With above configuration we get 81 % of successful classification!
+For YaleFace dataset also shipped with our repo we get 87 %!
