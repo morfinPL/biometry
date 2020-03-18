@@ -1,3 +1,4 @@
 add_subdirectory(Configuration)
 add_subdirectory(IO)
 add_subdirectory(FeatureExtraction)
+add_subdirectory(Classification)
