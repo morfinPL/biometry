@@ -26,15 +26,18 @@ namespace {
 	}
 }
 
-std::vector<int> FeatureExtraction::localBinaryPatternsHistogram(const cv::Mat& image)
+std::pair<std::vector<int>, cv::Mat> FeatureExtraction::localBinaryPatternsHistogram(const cv::Mat& image)
 {
+	cv::Mat result = cv::Mat::zeros(image.rows, image.cols, CV_8UC1);
 	std::vector<int> histogram(256);
 	for (int row = 1; row < image.rows - 1; row++)
 	{
 		for (int col = 1; col < image.cols - 1; col++)
 		{
-			histogram[localBinaryPattern(row, col, image)]++;
+			const auto lbp = localBinaryPattern(row, col, image);
+			histogram[lbp]++;
+			result.at<unsigned char>(row, col) = static_cast<unsigned char>(lbp);
 		}
 	}
-	return histogram;
+	return { histogram, result };
 }

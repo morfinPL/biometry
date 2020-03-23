@@ -3,6 +3,7 @@
 #include <iostream>
 #include <filesystem>
 
+#include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgcodecs/imgcodecs.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 
@@ -62,4 +63,11 @@ std::map<int, std::vector<cv::Mat>> IO::readGrayscaleDataset(const std::string& 
 		}
 	}
 	return dataset;
+}
+
+
+void IO::displayImage(const std::string& title, const cv::Mat& image)
+{
+	cv::imshow(title, image);
+	cv::waitKey();
 }
