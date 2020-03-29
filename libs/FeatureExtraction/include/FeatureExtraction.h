@@ -7,5 +7,5 @@
 
 namespace FeatureExtraction
 {
-	std::vector<int> localBinaryPatternsHistogram(const cv::Mat &image);
+	std::pair<std::vector<int>, cv::Mat> localBinaryPatternsHistogram(const cv::Mat &image);
 };
