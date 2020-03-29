@@ -2,7 +2,6 @@ include(../../cmake/tests.cmake)
 project(IO)
 
 set(LIBS
-	opencv_highgui
 	opencv_imgcodecs
 	opencv_imgproc
 )
