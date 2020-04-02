@@ -1,11 +1,14 @@
 #include <IO.h>
 
 #include <iostream>
+#include <fstream>
 #include <filesystem>
 
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgcodecs/imgcodecs.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
+
+#include <AudioFile.h>
 
 namespace
 {
@@ -70,4 +73,20 @@ void IO::displayImage(const std::string& title, const cv::Mat& image)
 {
 	cv::imshow(title, image);
 	cv::waitKey();
+}
+
+void IO::saveWavToTxt(const std::string &outputPath, const AudioFile<double> &sound)
+{
+    auto output = std::ofstream(outputPath);
+    for (auto sample = 0; sample < sound.getNumSamplesPerChannel(); sample++)
+    {
+        output << std::fixed << std::setprecision(std::numeric_limits<double>::digits) << static_cast<double>(sample) / sound.getSampleRate() << "\t";
+        for (auto channel = 0; channel < sound.getNumChannels(); channel++)
+        {
+            output << std::fixed << std::setprecision(std::numeric_limits<double>::digits) << sound.samples[channel][sample] << "\t";
+        }
+        output << std::endl;
+    }
+    output.flush();
+    output.close();
 }

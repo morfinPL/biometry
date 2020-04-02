@@ -5,6 +5,7 @@ set(LIBS
 	opencv_highgui
 	opencv_imgcodecs
 	opencv_imgproc
+	AudioFile
 )
 
 set(HEADERS
@@ -19,6 +20,7 @@ add_library(${PROJECT_NAME} ${SOURCES} ${HEADERS})
 include_directories(
 	${CMAKE_CURRENT_SOURCE_DIR}/include
 	${CMAKE_CURRENT_SOURCE_DIR}/src
+	${CMAKE_CURRENT_SOURCE_DIR}/../AudioFile/include
 )
 link_directories(${CMAKE_BINARY_DIR}/bin)
 target_link_libraries(${PROJECT_NAME} ${LIBS})
