@@ -1,1 +1,2 @@
 add_subdirectory(FaceDetection)
+add_subdirectory(BaseFrequencyDetector)
