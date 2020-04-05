@@ -1,9 +1,10 @@
 project(BaseFrequencyDetector)
 
 set(LIBS
-	Configuration
 	AudioFile
+	Configuration
 	IO
+	SoundProcessing
 )
 
 set(SOURCES
@@ -15,6 +16,7 @@ include_directories(
 	${CMAKE_CURRENT_SOURCE_DIR}/../../libs/Configuration/include
 	${CMAKE_CURRENT_SOURCE_DIR}/../../libs/AudioFile/include
 	${CMAKE_CURRENT_SOURCE_DIR}/../../libs/IO/include
+	${CMAKE_CURRENT_SOURCE_DIR}/../../libs/SoundProcessing/include
 )
 add_executable(${PROJECT_NAME} ${SOURCES})
 set_target_properties(${PROJECT_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin/apps)

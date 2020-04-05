@@ -89,3 +89,11 @@ FaceDetection.exe --dataset ..\..\..\..\testData\GeorgiaTechDatabaseCropped --ex
 ```
 With above configuration we get 81 % of successful classification!
 For YaleFace dataset also shipped with our repo we get 87 %!
+
+## Run BaseFrequencyDetector
+
+Our sample app finds base frequencies in some wav file. To run it you must use the following cmdline:
+```
+BaseFrequencyDetector.exe --input ..\..\..\..\testData\sound\artificial\diff\80Hz.wav --output wav.txt --window 1024 --treshold 0.0001
+```
+It prints out founded base frequencies in windows of given size of samples. It use two methods, autocorelation and fourier analysis. Window size should be number which is some power of two, because of use dfft.
