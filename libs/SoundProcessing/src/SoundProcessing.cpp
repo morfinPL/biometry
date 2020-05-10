@@ -285,13 +285,16 @@ std::vector<std::pair<int, int>> DTW(std::vector<double> input1, std::vector<dou
     }
     std::pair<int, int> tmpPar (input1.size() -1, input2.size() -1);
     std::pair<int, int> ZeroPar(0,0);
+    std::pair<int, int> neigboursA;
+    std::pair<int, int> neigboursB;
+    std::pair<int, int> neigboursC;
     std::vector<std::pair<int, int>> tmpVectorPar;
     tmpVectorPar.push_back(tmpPar);
     while (tmpPar != ZeroPar)
     {
-        std::pair<int, int> neigboursA(tmpPar.first - 1, tmpPar.second);
-        std::pair<int, int> neigboursB(tmpPar.first, tmpPar.second - 1);
-        std::pair<int, int> neigboursC(tmpPar.first - 1, tmpPar.second - 1);
+        neigboursA= std::make_pair(tmpPar.first - 1, tmpPar.second);
+        neigboursB= std::make_pair(tmpPar.first, tmpPar.second - 1);
+        neigboursC= std::make_pair(tmpPar.first - 1, tmpPar.second - 1);
 
         if (matrix[neigboursA.first][neigboursA.second] < matrix[neigboursB.first][neigboursB.second])
         {
