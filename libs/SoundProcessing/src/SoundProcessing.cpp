@@ -44,13 +44,13 @@ namespace
             if(f >= l && f <= c)
             {
                 temp = (f-l)/(c-l);
-			}
+            }
             else if(f >= c && f <= r)
             {
                 temp = (r - f)/(r-c);
-			}
+            }
             filter.emplace_back(temp);
-		}
+        }
         return filter;
     }
 
@@ -65,19 +65,6 @@ namespace
         return result;
     }
 
-    std::vector<double> giveSpectrumComputation(const AudioFile<double>& input, const int N, const double& threshold)
-    {
-        auto i = 0;
-        std::vector<double> resultAbs;
-        for (; i + N < input.getNumSamplesPerChannel(); i += N)
-        {
-            std::vector<double> samples(input.samples.front().begin() + i, input.samples.front().begin() + i + N);
-            const auto complexSamples(convertToComplex(samples));
-            resultAbs = computeAbs(dfft(complexSamples, false), threshold);
-        }
-        return resultAbs;
-    }
-
 
     std::vector<double> computeAbs(const std::vector<std::complex<double>>& dft, const double& threshold)
     {
@@ -90,6 +77,7 @@ namespace
         }
         return result;
     }
+
     struct SamplesWrapper
     {
         const std::vector<double> samples;
@@ -248,7 +236,8 @@ double computeS(const std::vector<double> &signal, const std::vector<double> &fi
     for(int i = 0; i < static_cast<int>(signal.size())/2; ++i)
     {
         result += signal[i] * filter[i];
-	}
+    }
+	return result;
 }
 
 double computeMel(const int n, const int K, const std::vector<double> &sValues)
@@ -257,7 +246,8 @@ double computeMel(const int n, const int K, const std::vector<double> &sValues)
     for(int k = 0; k < K; ++k)
     {
         result += sValues[k] * cos(2 * M_PI * ((2 * k + 1) * n) / (4 * K));
-	}
+    }
+	return result;
 }
 
 std::vector<std::pair<int, int>> DTW(std::vector<double> input1, std::vector<double> input2)
@@ -269,7 +259,7 @@ std::vector<std::pair<int, int>> DTW(std::vector<double> input1, std::vector<dou
     {
         for (int j = 0; j < input2.size(); j++)
         {
-            matrix[i][j] = DBL_MAX;
+            matrix[i][j] = std::numeric_limits<double>::max();
         }
     }
     matrix[0][0] = 0;
@@ -324,6 +314,19 @@ std::vector<std::pair<int, int>> DTW(std::vector<double> input1, std::vector<dou
     return tmpVectorPar;
 }
 
+    std::vector<double> giveSpectrumComputation(const AudioFile<double>& input, const int N, const double& threshold)
+    {
+        auto i = 0;
+        std::vector<double> resultAbs;
+        for (; i + N < input.getNumSamplesPerChannel(); i += N)
+        {
+            std::vector<double> samples(input.samples.front().begin() + i, input.samples.front().begin() + i + N);
+            const auto complexSamples(convertToComplex(samples));
+            resultAbs = computeAbs(dfft(complexSamples, false), threshold);
+        }
+        return resultAbs;
+    }
+
 std::pair<std::vector<double>, std::vector<double>> normalizeByLayer(const std::vector<double> &sound1, const std::vector<double> &sound2, const std::vector<std::pair<int, int>> &layer)
 {
     std::vector<double> outSound1, outSound2;
@@ -338,19 +341,18 @@ std::pair<std::vector<double>, std::vector<double>> normalizeByLayer(const std::
 }
 
 
-std::vector<std::vector<double>> SoundProcessing::mfcc(const AudioFile<double>& input, const int K, const double &d, const double &gamma, const int F, const int N)
+std::vector<std::vector<double>> SoundProcessing::mfcc(const std::vector<double>& input, const int K, const double &d, const double &gamma, const int F, const int N, const double &frequencyResolution)
 {
-    const double frequencyResolution = 1.0 * input.getSampleRate() / N;
     auto i = 0;
     std::vector<std::vector<double>> filterBank;
     std::vector<std::vector<double>> results;
     for (int j = 0; j < K; ++j)
     {
         filterBank.emplace_back(initFilter(j, N, d, frequencyResolution));
-	}
-    for (; i + N < input.getNumSamplesPerChannel(); i += N)
+    }
+    for (; i + N < static_cast<int>(input.size()); i += N)
     {
-        std::vector<double> samples(input.samples.front().begin() + i, input.samples.front().begin() + i + N);
+        std::vector<double> samples(input.begin() + i, input.begin() + i + N);
         samples = initHammington(samples);
         const auto complexSamples(convertToComplex(samples));
         const auto resultAbs = computeAbs(dfft(complexSamples, false), 0.0);        
@@ -358,20 +360,20 @@ std::vector<std::vector<double>> SoundProcessing::mfcc(const AudioFile<double>& 
         for(int j = 0; j < K; ++j)
         {
             sValues.emplace_back(std::pow(std::log(computeS(resultAbs, filterBank[i])), gamma));
-	    }
+        }
         results.push_back({});
         for(int j = 1; j < 1 + F; ++j)
         {
             results.back().emplace_back(computeMel(j, K, sValues));
-		}
+        }
     }
     return results;
 }
 
-double compareSingnalsMFCC(const std::vector<double>& sound1, const std::vector<double>& sound2)
+double compareSingnalsMFCC(const std::vector<double>& sound1, const std::vector<double>& sound2, const int K, const double &d, const double &gamma, const int F, const int N, const double &frequencyResolution)
 {
-    const auto mel1 = SoundProcessing::mfcc(sound1, K, d, gamma, F, N);
-    const auto mel2 = SoundProcessing::mfcc(sound2, K, d, gamma, F, N);
+    const auto mel1 = SoundProcessing::mfcc(sound1, K, d, gamma, F, N, frequencyResolution);
+    const auto mel2 = SoundProcessing::mfcc(sound2, K, d, gamma, F, N, frequencyResolution);
     auto result = 0.0;
     for (int i = 0; i < static_cast<int>(mel1.size()); ++i)
     {
@@ -379,7 +381,7 @@ double compareSingnalsMFCC(const std::vector<double>& sound1, const std::vector<
         for(int j = 0; j < static_cast<int>(mel1[i].size()); ++j)
         {
             temp += (mel1[i][j] - mel2[i][j]) * (mel1[i][j] - mel2[i][j]);
-		}
+        }
         result += temp;
     }
     return sqrt(result);
