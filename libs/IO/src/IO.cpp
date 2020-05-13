@@ -22,7 +22,7 @@ namespace
 	}
 }
 
-std::vector<std::string> IO::findImagesWithExtensionsInDirectory(const std::string& directory, const std::string& extension)
+std::vector<std::string> IO::findFilesWithExtensionsInDirectory(const std::string& directory, const std::string& extension)
 {
 	std::vector<std::string> pngs;
 	for (const auto& p : std::filesystem::directory_iterator(directory))
@@ -58,7 +58,7 @@ std::map<int, std::vector<cv::Mat>> IO::readGrayscaleDataset(const std::string& 
 		if (p.is_directory())
 		{
 			const auto label = std::stoi(p.path().filename());
-			const auto images = readGrayImages(findImagesWithExtensionsInDirectory(p.path().string(), extension));
+			const auto images = readGrayImages(findFilesWithExtensionsInDirectory(p.path().string(), extension));
 			for (const auto& image : images)
 			{
 				dataset.emplace(label, images);
@@ -89,4 +89,17 @@ void IO::saveWavToTxt(const std::string &outputPath, const AudioFile<double> &so
     }
     output.flush();
     output.close();
+}
+
+std::vector<AudioFile<double>> IO::readWavDataset(const std::string& datasetPath)
+{
+	std::vector<AudioFile<double>> data;
+	const auto wavs = findFilesWithExtensionsInDirectory(datasetPath, ".wav");
+	for (const auto& wav : wavs)
+	{
+		AudioFile<double> input;
+		input.load(wav);
+		data.emplace_back(input);
+	}
+	return data;
 }
