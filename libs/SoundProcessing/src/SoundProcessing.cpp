@@ -124,11 +124,10 @@ namespace
     std::vector<double> initHammington(const std::vector<double>& doubles)
     {
         std::vector<double> result;
-        float twopi;
-        twopi = 8.0F * atan(1.0F);
-        int i;
-        for (i = 0; i < doubles.size(); i++)
-            result[i] = (0.54 - 0.46 * cos(i * twopi / (doubles.size() - 1)));
+        for (int i = 0; i < doubles.size(); i++)
+        {
+            result.emplace_back((0.54 - 0.46 * cos(i * 2 * M_PI / (doubles.size() - 1))) * doubles[i]);
+        }
         return result;
     }
 
@@ -140,7 +139,7 @@ namespace
         std::vector<double> filter;
         for (int i = 0; i < N; ++i)
         {
-            auto f = i * frequencyResolution / N;
+            auto f = i * frequencyResolution;
             double temp = 0;
             if (f >= l && f <= c)
             {
@@ -263,68 +262,47 @@ std::pair<std::vector<double>, AudioFile<double>> SoundProcessing::fourier(const
     return {std::move(frequences), std::move(result)};
 }
 
-std::vector<std::pair<int, int>> DTW(std::vector<double> input1, std::vector<double> input2)
+std::vector<std::pair<int, int>> SoundProcessing::DTW(const std::vector<double>& input1, const std::vector<double>& input2)
 {
-    std::vector<std::vector<double>> matrix;
-    std::vector<std::pair<int, int>> para;
-    double cost, lastMin;
-    for (int i = 0; i < input1.size(); i++)
+    std::vector<std::vector<double>> matrix(input1.size());
+    for (int i = 0; i < input1.size(); ++i)
     {
-        for (int j = 0; j < input2.size(); j++)
-        {
-            matrix[i][j] = std::numeric_limits<double>::max();
-        }
+            matrix[i] = std::vector<double>(input2.size(), std::numeric_limits<double>::max());
     }
     matrix[0][0] = 0;
-
-    for (int i = 1; i < input1.size() + 1; i++)
+    for (int i = 1; i < input1.size(); ++i)
     {
-        for (int j = 1; j < input2.size() + 1; j++)
+        for (int j = 1; j < input2.size(); ++j)
         {
-            cost = abs(input1[i - 1] - input2[j - 1]);
-            lastMin = fmin(fmin(matrix[i - 1][j], matrix[i][j - 1]),matrix[i-1][j-1]);
+            const auto cost = std::abs(input1[i - 1] - input2[j - 1]);
+            const auto lastMin = std::min({ matrix[i - 1][j], matrix[i][j - 1], matrix[i - 1][j - 1] });
             matrix[i][j] = cost + lastMin;
         }
     }
-    std::pair<int, int> tmpPar (input1.size() -1, input2.size() -1);
-    std::pair<int, int> ZeroPar(0,0);
-    std::pair<int, int> neigboursA;
-    std::pair<int, int> neigboursB;
-    std::pair<int, int> neigboursC;
-    std::vector<std::pair<int, int>> tmpVectorPar;
-    tmpVectorPar.push_back(tmpPar);
-    while (tmpPar != ZeroPar)
+    std::pair<int, int> currentCell (input1.size() -1, input2.size() -1);
+    std::pair<int, int> end(0,0);
+    std::vector<std::pair<int, int>> resultLayer;
+    resultLayer.push_back(currentCell);
+    while (currentCell != end)
     {
-        neigboursA= std::make_pair(tmpPar.first - 1, tmpPar.second);
-        neigboursB= std::make_pair(tmpPar.first, tmpPar.second - 1);
-        neigboursC= std::make_pair(tmpPar.first - 1, tmpPar.second - 1);
-
-        if (matrix[neigboursA.first][neigboursA.second] < matrix[neigboursB.first][neigboursB.second])
+        std::pair<int, int> neigborA(currentCell.first - 1, currentCell.second);
+        std::pair<int, int> neigborB(currentCell.first, currentCell.second - 1);
+        std::pair<int, int> neigborC(currentCell.first - 1, currentCell.second - 1);
+        double tempValue = matrix[neigborA.first][neigborA.second];
+        currentCell = neigborA;
+        if (matrix[neigborB.first][neigborB.second] < tempValue)
         {
-            if (matrix[neigboursA.first][neigboursA.second] < matrix[neigboursC.first][neigboursC.second])
-            {
-                tmpPar = neigboursA;
-            }
-            else
-            {
-                tmpPar = neigboursC;
-            }
+            tempValue = matrix[neigborB.first][neigborB.second];
+            currentCell = neigborB;
         }
-        else
+        if (matrix[neigborC.first][neigborC.second] < tempValue)
         {
-            if (matrix[neigboursB.first][neigboursB.second] < matrix[neigboursC.first][neigboursC.second])
-            {
-                tmpPar = neigboursB;
-            }
-            else
-            {
-                tmpPar = neigboursC;
-            }
-
+            currentCell = neigborC;
+            tempValue = matrix[neigborC.first][neigborC.second];
         }
-        tmpVectorPar.push_back(tmpPar);
+        resultLayer.push_back(currentCell);
     }
-    return tmpVectorPar;
+    return resultLayer;
 }
 
 std::vector<std::vector<double>> SoundProcessing::mfcc(const std::vector<double>& input, const int K, const double &d, const double &gamma, const int F, const int N, const double &frequencyResolution)
@@ -332,7 +310,7 @@ std::vector<std::vector<double>> SoundProcessing::mfcc(const std::vector<double>
     auto i = 0;
     std::vector<std::vector<double>> filterBank;
     std::vector<std::vector<double>> results;
-    for (int j = 0; j < K; ++j)
+    for (int j = 1; j <= K; ++j)
     {
         filterBank.emplace_back(initFilter(j, N, d, frequencyResolution));
     }
@@ -345,7 +323,7 @@ std::vector<std::vector<double>> SoundProcessing::mfcc(const std::vector<double>
         std::vector<double> sValues;
         for(int j = 0; j < K; ++j)
         {
-            sValues.emplace_back(std::pow(std::log(computeS(resultAbs, filterBank[i])), gamma));
+            sValues.emplace_back(std::pow(std::log(computeS(resultAbs, filterBank[j])), gamma));
         }
         results.push_back({});
         for(int j = 1; j < 1 + F; ++j)
@@ -359,8 +337,10 @@ std::vector<std::vector<double>> SoundProcessing::mfcc(const std::vector<double>
 
 double SoundProcessing::compareSingnalsMFCC(const std::vector<double>& sound1, const std::vector<double>& sound2, const int K, const double& d, const double& gamma, const int F, const int N, const double& frequencyResolution)
 {
-    const auto mel1 = SoundProcessing::mfcc(sound1, K, d, gamma, F, N, frequencyResolution);
-    const auto mel2 = SoundProcessing::mfcc(sound2, K, d, gamma, F, N, frequencyResolution);
+    const auto dtw = DTW(sound1, sound2);
+    const auto [nSound1, nSound2] = normalizeByLayer(sound1, sound2, dtw);
+    const auto mel1 = SoundProcessing::mfcc(nSound1, K, d, gamma, F, N, frequencyResolution);
+    const auto mel2 = SoundProcessing::mfcc(nSound2, K, d, gamma, F, N, frequencyResolution);
     auto result = 0.0;
     for (int i = 0; i < static_cast<int>(mel1.size()); ++i)
     {
