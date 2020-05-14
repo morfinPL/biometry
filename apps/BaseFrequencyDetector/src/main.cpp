@@ -1,4 +1,5 @@
 #include <iostream>
+#include <random>
 
 #include <AudioFile.h>
 
@@ -19,29 +20,39 @@ int main(const int argc, const char **argv)
         std::cout << help;
         return 0;
     }
-    const auto inputPath(params.at("--input"));
-    const auto outputPath(params.at("--output"));
-    const auto N(std::stoi(params.at("--window")));
-    const auto treshold(std::stod(params.at("--treshold")));
-
-    AudioFile<double> input;
-    input.load(inputPath);
-    input.printSummary();
-    IO::saveWavToTxt(outputPath + "Orginal.txt", input);
-    std::cout << "Autocorelation" << std::endl;
-    auto result = SoundProcessing::autoCorelation(input, N);
-    for (auto i = 0; i < static_cast<int>(result.first.size()); i++)
+    const auto N = std::stoi(params.at("--window"));
+    std::string dataset1Path = "C:\\Projects\\biometry\\testData\\sound\\abrakadabra\\01";
+    std::string dataset2Path = "C:\\Projects\\biometry\\testData\\sound\\czarymary\\01";
+    auto data1 = IO::readWavDataset(dataset1Path);
+    auto data2 = IO::readWavDataset(dataset2Path);
+    std::random_device rd;
+    std::mt19937 mt(rd());
+    std::uniform_int_distribution<int> dist1(0, static_cast<int>(data1.size())-1);
+    std::uniform_int_distribution<int> dist2(0, static_cast<int>(data2.size())-1);
+    int queryId1 = dist1(mt);
+    int queryId2 = dist2(mt);
+    const auto query1 = data1[queryId1];
+    const auto query2 = data2[queryId2];
+    data1.erase(data1.begin() + queryId1);
+    data2.erase(data2.begin() + queryId2);
+    std::map<int, std::vector<AudioFile<double>>> data;
+    data.emplace(0, data1);
+    data.emplace(1, data2);
+    const double frequencyResolution = 1.0 * query1.getSampleRate() / N;
+    std::cout << "query1 - abrakadabra" << std::endl;
+    for (const auto label : data)
     {
-        std::cout << result.first[i] << "[Hz] " << std::endl;
+        for (const auto audio : label.second)
+        {
+            std::cout << ((label.first == 0) ? "abrakadabra" : "czarymary" ) << " distance: " << SoundProcessing::compareSingnalsMFCC(query1.samples.front(), audio.samples.front(), 7, 100, 2, 15, N, frequencyResolution) << std::endl;
+        }
     }
-    IO::saveWavToTxt(outputPath + ".txt", result.second);
-    result.second.save(outputPath + ".wav");
-    std::cout << "Fourier" << std::endl;
-    auto fourierResult = SoundProcessing::fourier(input, N, treshold);
-    IO::saveWavToTxt(outputPath + "fourier.txt", fourierResult.second);
-    fourierResult.second.save(outputPath + "fourier.wav");
-    for (auto i = 0; i < static_cast<int>(fourierResult.first.size()); i++)
+    std::cout << "query2 - czarymary" << std::endl;
+    for (const auto label : data)
     {
-        std::cout << fourierResult.first[i] << "[Hz] " << std::endl;
+        for (const auto audio : label.second)
+        {
+            std::cout << ((label.first == 0) ? "abrakadabra" : "czarymary") << " distance: " << SoundProcessing::compareSingnalsMFCC(query2.samples.front(), audio.samples.front(), 7, 100, 2, 15, N, frequencyResolution) << std::endl;
+        }
     }
 }
