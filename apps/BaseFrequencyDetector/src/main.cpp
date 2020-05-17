@@ -7,6 +7,31 @@
 #include <IO.h>
 #include <SoundProcessing.h>
 
+std::vector<int> classify(const int N, const double &frequencyResolution, const std::vector<std::vector<double>> &queries, const std::map<int, std::vector<std::vector<double>>> &train)
+{
+    std::vector<int> result;
+    double distance = std::numeric_limits<double>::max();
+    for (const auto& query : queries)
+    {
+        int tempResult;
+        for (const auto& t : train)
+        {
+            for (const auto& train : t.second) {
+                const double temp = SoundProcessing::compareSingnalsMFCC(query, train, 15, 50, 2, 25, N, frequencyResolution);
+                std::cout << temp << std::endl;
+                if (temp < distance)
+                {
+                    distance = temp;
+                    tempResult = t.first;
+                }
+            }
+        }
+        result.emplace_back(tempResult);
+    }
+    return result;
+}
+
+
 int main(const int argc, const char **argv)
 {
     const auto params(Configuration::parseParameters(argc, argv));
@@ -31,28 +56,27 @@ int main(const int argc, const char **argv)
     std::uniform_int_distribution<int> dist2(0, static_cast<int>(data2.size())-1);
     int queryId1 = dist1(mt);
     int queryId2 = dist2(mt);
-    const auto query1 = data1[queryId1];
-    const auto query2 = data2[queryId2];
+    const auto query1 = data1[queryId1].samples.front();
+    const auto query2 = data2[queryId2].samples.front();
     data1.erase(data1.begin() + queryId1);
     data2.erase(data2.begin() + queryId2);
-    std::map<int, std::vector<AudioFile<double>>> data;
-    data.emplace(0, data1);
-    data.emplace(1, data2);
-    const double frequencyResolution = 1.0 * query1.getSampleRate() / N;
-    std::cout << "query1 - abrakadabra" << std::endl;
-    for (const auto label : data)
+    std::map<int, std::vector<std::vector<double>>> data;
+    std::vector<std::vector<double>> data1Samples;
+    for (int i = 0; i < static_cast<int>(data1.size()); ++i)
     {
-        for (const auto audio : label.second)
-        {
-            std::cout << ((label.first == 0) ? "abrakadabra" : "czarymary" ) << " distance: " << SoundProcessing::compareSingnalsMFCC(query1.samples.front(), audio.samples.front(), 7, 100, 2, 15, N, frequencyResolution) << std::endl;
-        }
+        data1Samples.emplace_back(data1[i].samples.front());
     }
-    std::cout << "query2 - czarymary" << std::endl;
-    for (const auto label : data)
+    std::vector<std::vector<double>> data2Samples;
+    for (int i = 0; i < static_cast<int>(data1.size()); ++i)
     {
-        for (const auto audio : label.second)
-        {
-            std::cout << ((label.first == 0) ? "abrakadabra" : "czarymary") << " distance: " << SoundProcessing::compareSingnalsMFCC(query2.samples.front(), audio.samples.front(), 7, 100, 2, 15, N, frequencyResolution) << std::endl;
-        }
+        data2Samples.emplace_back(data2[i].samples.front());
+    }
+    data.emplace(0, data1Samples);
+    data.emplace(1, data2Samples);
+    const double frequencyResolution = 1.0 * data1.front().getSampleRate() / N;
+    const auto results = classify(N, frequencyResolution, { query1, query2 }, data);
+    for (const auto& result : results)
+    {
+        std::cout << result << std::endl;
     }
 }
