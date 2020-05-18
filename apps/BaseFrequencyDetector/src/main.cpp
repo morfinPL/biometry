@@ -16,8 +16,9 @@ std::vector<int> classify(const int N, const double &frequencyResolution, const 
         int tempResult;
         for (const auto& t : train)
         {
+			std::cout << std::endl;
             for (const auto& train : t.second) {
-                const double temp = SoundProcessing::compareSingnalsMFCC(query, train, 15, 50, 2, 25, N, frequencyResolution);
+                const double temp = SoundProcessing::compareSingnalsMFCC(query, train, 30, 100, 2, 50, N, frequencyResolution);
                 std::cout << temp << std::endl;
                 if (temp < distance)
                 {
@@ -46,8 +47,8 @@ int main(const int argc, const char **argv)
         return 0;
     }
     const auto N = std::stoi(params.at("--window"));
-    std::string dataset1Path = "C:\\Projects\\biometry\\testData\\sound\\abrakadabra\\01";
-    std::string dataset2Path = "C:\\Projects\\biometry\\testData\\sound\\czarymary\\01";
+    std::string dataset1Path = "D:\\my\\biometry\\testData\\sound\\abrakadabra\\01";
+    std::string dataset2Path = "D:\\my\\biometry\\testData\\sound\\czarymary\\01";
     auto data1 = IO::readWavDataset(dataset1Path);
     auto data2 = IO::readWavDataset(dataset2Path);
     std::random_device rd;
