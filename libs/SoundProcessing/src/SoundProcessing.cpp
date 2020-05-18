@@ -14,7 +14,7 @@
 namespace
 {
 
-	class Wrapper
+	class DTWWrapper
 	{
 	private:
 		const int size;
@@ -23,7 +23,7 @@ namespace
 		const int window;
 		std::vector<std::unordered_map<int, double>> matrix;
 	public:
-		Wrapper(const int size1, const int size2, const int window) : size(size1), size2(size2), window(window), matrix(size1), a(static_cast<double>(size2) / static_cast<double>(size1)) {}
+		DTWWrapper(const int size1, const int size2, const int window) : size(size1), size2(size2), window(window), matrix(size1), a(static_cast<double>(size2) / static_cast<double>(size1)) {}
 		double at(const int i, const int j) const
 		{
 			if (i == 0 || j == 0)
@@ -296,24 +296,33 @@ std::pair<std::vector<double>, AudioFile<double>> SoundProcessing::fourier(const
     return {std::move(frequences), std::move(result)};
 }
 
-std::vector<std::pair<int, int>> SoundProcessing::DTW(const std::vector<double>& input1, const std::vector<double>& input2)
+double distance(const std::vector<double> &vec1, const std::vector<double> &vec2)
 {
-    const int window = 51;
+	double result = 0.0;
+	for (int i = 0; i < static_cast<int>(vec1.size()); ++i)
+	{
+		result += (vec1[i] - vec2[i]) * (vec1[i] - vec2[i]);
+	}
+	return sqrt(result);
+}
+
+double SoundProcessing::DTW(const std::vector<std::vector<double>>& input1, const std::vector<std::vector<double>>& input2)
+{
+    const int window = 11;
 	const double a = static_cast<double>(input2.size()) / static_cast<double>(input1.size());
-    Wrapper matrix(static_cast<int>(input1.size()), static_cast<int>(input2.size()), window);
+    DTWWrapper matrix(static_cast<int>(input1.size()), static_cast<int>(input2.size()), window);
 	for (int i = 1; i < input1.size(); ++i)
     {
         for (int j = std::max(1, static_cast<int>(a * i - window)); j < std::min(static_cast<int>(input2.size()), static_cast<int>(a * i + window)); ++j)
         {
-            const auto cost = std::abs(input1[i - 1] - input2[j - 1]);
+            const auto cost = distance(input1[i - 1], input2[j - 1]);
             const auto lastMin = std::min({ matrix.at(i - 1, j), matrix.at(i, j - 1), matrix.at(i - 1, j - 1) });
             matrix.set(i, j, cost + lastMin);
         }
     }
     std::pair<int, int> currentCell (input1.size() -1, input2.size() -1);
     std::pair<int, int> end(0,0);
-    std::vector<std::pair<int, int>> resultLayer;
-    resultLayer.push_back(currentCell);
+	double result = 0.0;
     while (currentCell != end)
     {
         std::pair<int, int> neigborA(currentCell.first - 1, currentCell.second);
@@ -331,9 +340,9 @@ std::vector<std::pair<int, int>> SoundProcessing::DTW(const std::vector<double>&
             currentCell = neigborC;
             tempValue = matrix.at(neigborC.first, neigborC.second);
         }
-        resultLayer.push_back(currentCell);
+        result += tempValue;
     }
-    return resultLayer;
+    return result;
 }
 
 std::vector<std::vector<double>> SoundProcessing::mfcc(const std::vector<double>& input, const int K, const double &d, const double &gamma, const int F, const int N, const double &frequencyResolution)
@@ -368,19 +377,7 @@ std::vector<std::vector<double>> SoundProcessing::mfcc(const std::vector<double>
 
 double SoundProcessing::compareSingnalsMFCC(const std::vector<double>& sound1, const std::vector<double>& sound2, const int K, const double& d, const double& gamma, const int F, const int N, const double& frequencyResolution)
 {
-    const auto dtw = DTW(sound1, sound2);
-    const auto [n2Sound1, n2Sound2] = normalizeByLayer(sound1, sound2, dtw);
-    const auto mel1 = SoundProcessing::mfcc(n2Sound1, K, d, gamma, F, N, frequencyResolution);
-    const auto mel2 = SoundProcessing::mfcc(n2Sound2, K, d, gamma, F, N, frequencyResolution);
-    auto result = 0.0;
-    for (int i = 0; i < static_cast<int>(mel1.size()); ++i)
-    {
-        auto temp = 0.0;
-        for(int j = 0; j < static_cast<int>(mel1[i].size()); ++j)
-        {
-            temp += (mel1[i][j] - mel2[i][j]) * (mel1[i][j] - mel2[i][j]);
-        }
-        result += temp;
-    }
-    return sqrt(result);
+    const auto mel1 = SoundProcessing::mfcc(sound1, K, d, gamma, F, N, frequencyResolution);
+    const auto mel2 = SoundProcessing::mfcc(sound2, K, d, gamma, F, N, frequencyResolution);
+    return DTW(mel1, mel2);
 }

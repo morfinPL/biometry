@@ -10,16 +10,14 @@
 std::vector<int> classify(const int N, const double &frequencyResolution, const std::vector<std::vector<double>> &queries, const std::map<int, std::vector<std::vector<double>>> &train)
 {
     std::vector<int> result;
-    double distance = std::numeric_limits<double>::max();
     for (const auto& query : queries)
     {
+		double distance = std::numeric_limits<double>::max();
         int tempResult;
         for (const auto& t : train)
         {
-			std::cout << std::endl;
             for (const auto& train : t.second) {
-                const double temp = SoundProcessing::compareSingnalsMFCC(query, train, 30, 100, 2, 50, N, frequencyResolution);
-                std::cout << temp << std::endl;
+                const double temp = SoundProcessing::compareSingnalsMFCC(query, train, 60, 50, 2, 25, N, frequencyResolution);
                 if (temp < distance)
                 {
                     distance = temp;
@@ -32,6 +30,45 @@ std::vector<int> classify(const int N, const double &frequencyResolution, const 
     return result;
 }
 
+std::pair<std::vector<std::vector<double>>, std::map<int, std::vector<std::vector<double>>>> dataPartition(const int id, const std::vector<AudioFile<double>> &data1, const std::vector<AudioFile<double>> &data2, const std::vector<AudioFile<double>> &data3)
+{
+	const auto query1 = data1[id].samples.front();
+    const auto query2 = data2[id].samples.front();
+    const auto query3 = data3[id].samples.front();
+    std::vector<std::vector<double>> data1Samples;
+    for (int i = 0; i < static_cast<int>(data1.size()); ++i)
+    {
+		if (i == id)
+		{
+			continue;
+		}
+        data1Samples.emplace_back(data1[i].samples.front());
+    }
+    std::vector<std::vector<double>> data2Samples;
+    for (int i = 0; i < static_cast<int>(data2.size()); ++i)
+    {
+		if (i == id)
+		{
+			continue;
+		}
+        data2Samples.emplace_back(data2[i].samples.front());
+    }
+    std::vector<std::vector<double>> data3Samples;
+    for (int i = 0; i < static_cast<int>(data3.size()); ++i)
+    {
+		if (i == id)
+		{
+			continue;
+		}
+        data3Samples.emplace_back(data3[i].samples.front());
+    }
+    std::map<int, std::vector<std::vector<double>>> data;
+    data.emplace(0, data1Samples);
+    data.emplace(1, data2Samples);
+    data.emplace(2, data3Samples);
+	return { {query1, query2, query3}, data };
+}
+
 
 int main(const int argc, const char **argv)
 {
@@ -40,44 +77,40 @@ int main(const int argc, const char **argv)
     {
         std::string help = "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<        HELP        >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n";
         help += "--input - path of input, required\n";
-        help += "--output - path of output, optional\n";
         help += "--window - size of window, required\n";
-        help += "--treshold - threshold for fourier analysis, required\n";
         std::cout << help;
         return 0;
     }
     const auto N = std::stoi(params.at("--window"));
-    std::string dataset1Path = "D:\\my\\biometry\\testData\\sound\\abrakadabra\\01";
-    std::string dataset2Path = "D:\\my\\biometry\\testData\\sound\\czarymary\\01";
-    auto data1 = IO::readWavDataset(dataset1Path);
-    auto data2 = IO::readWavDataset(dataset2Path);
-    std::random_device rd;
-    std::mt19937 mt(rd());
-    std::uniform_int_distribution<int> dist1(0, static_cast<int>(data1.size())-1);
-    std::uniform_int_distribution<int> dist2(0, static_cast<int>(data2.size())-1);
-    int queryId1 = dist1(mt);
-    int queryId2 = dist2(mt);
-    const auto query1 = data1[queryId1].samples.front();
-    const auto query2 = data2[queryId2].samples.front();
-    data1.erase(data1.begin() + queryId1);
-    data2.erase(data2.begin() + queryId2);
-    std::map<int, std::vector<std::vector<double>>> data;
-    std::vector<std::vector<double>> data1Samples;
-    for (int i = 0; i < static_cast<int>(data1.size()); ++i)
-    {
-        data1Samples.emplace_back(data1[i].samples.front());
-    }
-    std::vector<std::vector<double>> data2Samples;
-    for (int i = 0; i < static_cast<int>(data1.size()); ++i)
-    {
-        data2Samples.emplace_back(data2[i].samples.front());
-    }
-    data.emplace(0, data1Samples);
-    data.emplace(1, data2Samples);
+	const auto inputPath = params.at("--input");
+    std::string dataset1Path = inputPath + "\\03";
+    std::string dataset2Path = inputPath + "\\02";
+    std::string dataset3Path = inputPath + "\\01";
+    const auto data1 = IO::readWavDataset(dataset1Path);
+    const auto data2 = IO::readWavDataset(dataset2Path);
+    const auto data3 = IO::readWavDataset(dataset3Path);
     const double frequencyResolution = 1.0 * data1.front().getSampleRate() / N;
-    const auto results = classify(N, frequencyResolution, { query1, query2 }, data);
-    for (const auto& result : results)
-    {
-        std::cout << result << std::endl;
-    }
+	std::vector<std::vector<int>> confusion(3);
+	for (int i = 0; i < static_cast<int>(confusion.size()); ++i)
+	{
+		confusion[i] = std::vector<int>(3);
+	}
+	for (int i = 0; i <= 10; ++i)
+	{
+		const auto[queries, train] = dataPartition(i, data1, data2, data3);
+		const auto results = classify(N, frequencyResolution, queries, train);
+		for (int i = 0; i < 3; ++i)
+		{
+			confusion[i][results[i]]++;
+		}
+	}
+	std::cout << "Confusion matrix:" << std::endl;
+	for (int i = 0; i < static_cast<int>(confusion.size()); ++i)
+	{
+		for (int j = 0; j < static_cast<int>(confusion[i].size()); ++j)
+		{
+			std::cout << confusion[i][j] << " ";
+		}
+		std::cout << std::endl;
+	}
 }
