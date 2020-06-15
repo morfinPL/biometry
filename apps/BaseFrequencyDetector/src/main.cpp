@@ -10,14 +10,17 @@
 std::vector<int> classify(const int N, const double &frequencyResolution, const std::vector<std::vector<double>> &queries, const std::map<int, std::vector<std::vector<double>>> &train)
 {
     std::vector<int> result;
+	auto queryCounter = 0;
     for (const auto& query : queries)
     {
 		double distance = std::numeric_limits<double>::max();
         int tempResult;
         for (const auto& t : train)
         {
+			auto counter = 0;
             for (const auto& train : t.second) {
                 const double temp = SoundProcessing::compareSingnalsMFCC(query, train, 60, 50, 2, 25, N, frequencyResolution);
+				std::cout << "dtwDistanceOfMFCC: " << temp << " class: " << t.first << " data: " << counter++ << std::endl;
                 if (temp < distance)
                 {
                     distance = temp;
@@ -25,6 +28,7 @@ std::vector<int> classify(const int N, const double &frequencyResolution, const 
                 }
             }
         }
+		std::cout << "query: " << queryCounter++ << " resultClass: " << tempResult << " resultDtwDistanceOfMFCC: " << distance << std::endl;
         result.emplace_back(tempResult);
     }
     return result;
