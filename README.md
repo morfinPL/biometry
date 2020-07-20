@@ -1,4 +1,4 @@
-# Biometry [![Build Status](https://travis-ci.com/morfinPL/biometry.svg?token=KajztPDJBQAx9hzP5jSW&branch=master)](https://travis-ci.com/morfinPL/biometry)
+# Biometry ![CI](https://github.com/morfinPL/biometry/workflows/CI/badge.svg)
 
 This is repo for lesson in Lodz University of Technology.
 
