@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  Release:
+    runs-on: ubuntu-latest
+    container: morfin/myalpine:OpenCV4.2.0WithDebugWithCatch2.11.1
+    steps:
+      - uses: actions/checkout@v2
+      - name: Configure
+        run: |
+          mkdir build
+          cd build
+          cmake -DCMAKE_BUILD_TYPE=Release -DCI=ON -S .. -B .
+      - name: Build
+        run: |
+          cd build
+          cmake --build . --config Release
+      - name: Test
+        run: |
+          cd build
+          ctest --output-on-failure -C Release -j 1
+  Debug:
+    runs-on: ubuntu-latest
+    container: morfin/myalpine:OpenCV4.2.0WithDebugWithCatch2.11.1
+    steps:
+      - uses: actions/checkout@v2
+      - name: Configure
+        run: |
+          mkdir build
+          cd build
+          cmake -DCMAKE_BUILD_TYPE=Debug -DCI=ON -S .. -B .
+      - name: Build
+        run: |
+          cd build
+          cmake --build . --config Debug
+      - name: Test
+        run: |
+          cd build
+          ctest --output-on-failure -C Debug -j 1
