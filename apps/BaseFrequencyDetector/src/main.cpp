@@ -14,12 +14,12 @@ std::vector<int> classify(const int N, const double &frequencyResolution, const 
     for (const auto& query : queries)
     {
 		double distance = std::numeric_limits<double>::max();
-        int tempResult;
+        int tempResult = -1;
         for (const auto& t : train)
         {
 			auto counter = 0;
-            for (const auto& train : t.second) {
-                const double temp = SoundProcessing::compareSingnalsMFCC(query, train, 60, 50, 2, 25, N, frequencyResolution);
+            for (const auto& tt : t.second) {
+                const double temp = SoundProcessing::compareSingnalsMFCC(query, tt, 60, 50, 2, 25, N, frequencyResolution);
 				std::cout << "dtwDistanceOfMFCC: " << temp << " class: " << t.first << " data: " << counter++ << std::endl;
                 if (temp < distance)
                 {
@@ -103,9 +103,9 @@ int main(const int argc, const char **argv)
 	{
 		const auto[queries, train] = dataPartition(i, data1, data2, data3);
 		const auto results = classify(N, frequencyResolution, queries, train);
-		for (int i = 0; i < 3; ++i)
+		for (int j = 0; j < 3; ++j)
 		{
-			confusion[i][results[i]]++;
+			confusion[j][results[j]]++;
 		}
 	}
 	std::cout << "Confusion matrix:" << std::endl;

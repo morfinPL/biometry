@@ -20,6 +20,6 @@ include_directories(
 	${CMAKE_CURRENT_SOURCE_DIR}/../../libs/Classification/include
 )
 add_executable(${PROJECT_NAME} ${SOURCES})
-set_target_properties(${PROJECT_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin/apps)
+set_target_properties(${PROJECT_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 target_link_libraries(${PROJECT_NAME} ${LIBS})
 set_property(TARGET ${PROJECT_NAME} PROPERTY FOLDER "apps")

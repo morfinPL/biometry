@@ -16,14 +16,14 @@ namespace
 
 	class DTWWrapper
 	{
-	private:
-		const int size;
-		const int size2;
-		const double a;
-		const int window;
-		std::vector<std::unordered_map<int, double>> matrix;
+    private:
+        const int size;
+        const int size2;
+        const double a;
+        const int window;
+        std::vector<std::unordered_map<int, double>> matrix;
 	public:
-		DTWWrapper(const int size1, const int size2, const int window) : size(size1), size2(size2), window(window), matrix(size1), a(static_cast<double>(size2) / static_cast<double>(size1)) {}
+		DTWWrapper(const int size1, const int size2, const int window) : size(size1), size2(size2), a(static_cast<double>(size2) / static_cast<double>(size1)), window(window), matrix(size1) {}
 		double at(const int i, const int j) const
 		{
 			if (i == 0 || j == 0)
@@ -158,7 +158,7 @@ namespace
     std::vector<double> initHammington(const std::vector<double>& doubles)
     {
         std::vector<double> result;
-        for (int i = 0; i < doubles.size(); i++)
+        for (int i = 0; i < static_cast<int>(doubles.size()); ++i)
         {
             result.emplace_back((0.54 - 0.46 * cos(i * 2 * M_PI / (doubles.size() - 1))) * doubles[i]);
         }
@@ -207,24 +207,10 @@ namespace
         }
         return result;
     }
-
-    std::pair<std::vector<double>, std::vector<double>> normalizeByLayer(const std::vector<double>& sound1, const std::vector<double>& sound2, const std::vector<std::pair<int, int>>& layer)
-    {
-        std::vector<double> outSound1, outSound2;
-        for (const auto indexes : layer)
-        {
-            const auto index1 = indexes.first;
-            const auto index2 = indexes.second;
-            outSound1.emplace_back(sound1[index1]);
-            outSound2.emplace_back(sound2[index2]);
-        }
-        return { outSound1, outSound2 };
-    }
 }
 
 std::pair<std::vector<double>, AudioFile<double>> SoundProcessing::autoCorelation(const AudioFile<double> &input, const int N)
 {
-    const double frequencyResolution = 1.0 * input.getSampleRate() / N;
     AudioFile<double> result = input;
     std::vector<double> frequences;
     auto i = 0;
@@ -274,11 +260,11 @@ std::pair<std::vector<double>, AudioFile<double>> SoundProcessing::fourier(const
         const auto resultAbs = computeAbs(dfft(complexSamples, false), threshold);
         std::copy(resultAbs.begin(), resultAbs.end(), resultTemp.samples.front().begin() + i);
         std::vector<int> maxs;
-        for (auto j = 1; j < resultAbs.size() / 2; j++)
+        for (int j = 1; j < static_cast<int>(resultAbs.size()) / 2; j++)
         {
-            if (resultAbs[j - 1] < resultAbs[j] && resultAbs[j] > resultAbs[j + 1])
+            if (resultAbs[j - 1LL] < resultAbs[j] && resultAbs[j] > resultAbs[j + 1LL])
             {
-                maxs.push_back(static_cast<double>(j));
+                maxs.push_back(static_cast<int>(j));
             }
         }
         frequences.push_back(frequencyResolution * (maxs.back() - maxs.front()) / (maxs.size() - 1));
@@ -311,7 +297,7 @@ double SoundProcessing::DTW(const std::vector<std::vector<double>>& input1, cons
     const int window = 11;
 	const double a = static_cast<double>(input2.size()) / static_cast<double>(input1.size());
     DTWWrapper matrix(static_cast<int>(input1.size()), static_cast<int>(input2.size()), window);
-	for (int i = 1; i < input1.size(); ++i)
+	for (int i = 1; i < static_cast<int>(input1.size()); ++i)
     {
         for (int j = std::max(1, static_cast<int>(a * i - window)); j < std::min(static_cast<int>(input2.size()), static_cast<int>(a * i + window)); ++j)
         {
@@ -320,7 +306,7 @@ double SoundProcessing::DTW(const std::vector<std::vector<double>>& input1, cons
             matrix.set(i, j, cost + lastMin);
         }
     }
-    std::pair<int, int> currentCell (input1.size() -1, input2.size() -1);
+    std::pair<int, int> currentCell (static_cast<int>(input1.size()) -1, static_cast<int>(input2.size()) -1);
     std::pair<int, int> end(0,0);
 	double result = 0.0;
     while (currentCell != end)

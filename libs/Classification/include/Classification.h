@@ -9,8 +9,8 @@ namespace Classification
 		std::vector<std::vector<int>> trainFeatures;
 
 	public:
-		NNClassifier(const std::vector<int>& trainY, const std::vector<std::vector<int>>& trainFeatures);
-		std::vector<int> classify(const std::vector<std::vector<int>>& testFeatures) const;
-		int classifyOne(const std::vector<int>& features) const;
+		CLASSIFICATION_DLL_API NNClassifier(const std::vector<int> &trainY, const std::vector<std::vector<int>> &trainFeatures);
+		CLASSIFICATION_DLL_API std::vector<int> classify(const std::vector<std::vector<int>> &testFeatures) const;
+		CLASSIFICATION_DLL_API int classifyOne(const std::vector<int> &features) const;
 	};
-}
+} // namespace Classification

@@ -44,3 +44,21 @@ jobs:
         run: |
           cd build
           ctest --output-on-failure -C Debug -j 1
+  Coverage:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v2
+      - name: Configure
+        run: |
+          mkdir build
+          cd build
+          cmake -DCMAKE_BUILD_TYPE=Debug -DBUILD_ENABLE_COVERAGE=ON -S .. -B .
+      - name: Compute Coverage
+        run: |
+          cd build
+          cmake --build . --config Debug --target COVERAGE
+      - name: Upload coverage to Codecov
+        run: |
+          Invoke-WebRequest -Uri "https://github.com/codecov/codecov-exe/releases/download/1.12.3/codecov-win7-x64.zip" -OutFile (Join-Path $pwd Codecov.zip)
+          Expand-Archive .\\Codecov.zip -DestinationPath .
+          .\codecov.exe -f build\coverage_results\Coverage.xml -t ${{ secrets.CODECOV_TOKEN }}
