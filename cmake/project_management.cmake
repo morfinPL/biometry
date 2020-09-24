@@ -1,0 +1,23 @@
+function(add_shared_library LIB_NAME DIR SOURCES HEADERS)
+    list(LENGTH ARGN OPTIONAL_ARGUMENTS_COUNT)
+    add_library(${LIB_NAME} SHARED ${SOURCES} ${HEADERS})
+    include_directories(
+	    ${DIR}/include
+	    ${DIR}/src
+    )
+    link_directories(${CMAKE_BINARY_DIR}/bin)
+    if(OPTIONAL_ARGUMENTS_COUNT GREATER 0)
+        SET(LIBS ${ARGN})
+        target_link_libraries(${PROJECT_NAME} ${LIBS})
+    endif()
+    set_target_properties(${LIB_NAME} PROPERTIES FOLDER "libs")
+    set_target_properties(${LIB_NAME} PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+    set_target_properties(${LIB_NAME} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+    set_target_properties(${LIB_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+    STRING(TOUPPER ${LIB_NAME} LIB_NAME_UPPER)
+    if(MSVC)
+        target_compile_definitions(${LIB_NAME} PUBLIC ${LIB_NAME_UPPER}_DLL_API=__declspec\(dllexport\))
+    else()
+        target_compile_definitions(${LIB_NAME} PUBLIC ${LIB_NAME_UPPER}_DLL_API=)
+    endif()
+endfunction()

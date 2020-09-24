@@ -52,69 +52,69 @@ public:
 
     //=============================================================
     /** Constructor */
-    AudioFile();
+    AUDIOFILE_DLL_API AudioFile();
 
     //=============================================================
     /** Loads an audio file from a given file path.
      * @Returns true if the file was successfully loaded
      */
-    bool load(const std::string &filePath);
+    AUDIOFILE_DLL_API bool load(const std::string &filePath);
 
     /** Saves an audio file to a given file path.
      * @Returns true if the file was successfully saved
      */
-    bool save(const std::string &filePath, AudioFileFormat format = AudioFileFormat::Wave);
+    AUDIOFILE_DLL_API bool save(const std::string &filePath, AudioFileFormat format = AudioFileFormat::Wave);
 
     //=============================================================
     /** @Returns the sample rate */
-    uint32_t getSampleRate() const;
+    AUDIOFILE_DLL_API int64_t getSampleRate() const;
 
     /** @Returns the number of audio channels in the buffer */
-    int getNumChannels() const;
+    AUDIOFILE_DLL_API int getNumChannels() const;
 
     /** @Returns true if the audio file is mono */
-    bool isMono() const;
+    AUDIOFILE_DLL_API bool isMono() const;
 
     /** @Returns true if the audio file is stereo */
-    bool isStereo() const;
+    AUDIOFILE_DLL_API bool isStereo() const;
 
     /** @Returns the bit depth of each sample */
-    int getBitDepth() const;
+    AUDIOFILE_DLL_API int getBitDepth() const;
 
     /** @Returns the number of samples per channel */
-    int getNumSamplesPerChannel() const;
+    AUDIOFILE_DLL_API int getNumSamplesPerChannel() const;
 
     /** @Returns the length in seconds of the audio file based on the number of samples and sample rate */
-    double getLengthInSeconds() const;
+    AUDIOFILE_DLL_API double getLengthInSeconds() const;
 
     /** Prints a summary of the audio file to the console */
-    void printSummary() const;
+    AUDIOFILE_DLL_API void printSummary() const;
 
     //=============================================================
 
     /** Set the audio buffer for this AudioFile by copying samples from another buffer.
      * @Returns true if the buffer was copied successfully.
      */
-    bool setAudioBuffer(AudioBuffer &newBuffer);
+    AUDIOFILE_DLL_API bool setAudioBuffer(AudioBuffer &newBuffer);
 
     /** Sets the audio buffer to a given number of channels and number of samples per channel. This will try to preserve
      * the existing audio, adding zeros to any new channels or new samples in a given channel.
      */
-    void setAudioBufferSize(int numChannels, int numSamples);
+    AUDIOFILE_DLL_API void setAudioBufferSize(int numChannels, int numSamples);
 
     /** Sets the number of samples per channel in the audio buffer. This will try to preserve
      * the existing audio, adding zeros to new samples in a given channel if the number of samples is increased.
      */
-    void setNumSamplesPerChannel(int numSamples);
+    AUDIOFILE_DLL_API void setNumSamplesPerChannel(int numSamples);
 
     /** Sets the number of channels. New channels will have the correct number of samples and be initialised to zero */
-    void setNumChannels(int numChannels);
+    AUDIOFILE_DLL_API void setNumChannels(int numChannels);
 
     /** Sets the bit depth for the audio file. If you use the save() function, this bit depth rate will be used */
-    void setBitDepth(int numBitsPerSample);
+    AUDIOFILE_DLL_API void setBitDepth(int numBitsPerSample);
 
     /** Sets the sample rate for the audio file. If you use the save() function, this sample rate will be used */
-    void setSampleRate(uint32_t newSampleRate);
+    AUDIOFILE_DLL_API void setSampleRate(uint32_t newSampleRate);
 
     //=============================================================
     /** A vector of vectors holding the audio samples for the AudioFile. You can
@@ -157,9 +157,9 @@ private:
     uint8_t sampleToSingleByte(T sample);
     T singleByteToSample(uint8_t sample);
 
-    uint32_t getAiffSampleRate(std::vector<uint8_t> &fileData, int sampleRateStartIndex);
+    int64_t getAiffSampleRate(std::vector<uint8_t> &fileData, int sampleRateStartIndex);
     bool tenByteMatch(std::vector<uint8_t> &v1, int startIndex1, std::vector<uint8_t> &v2, int startIndex2);
-    void addSampleRateToAiffData(std::vector<uint8_t> &fileData, uint32_t sampleRate);
+    void addSampleRateToAiffData(std::vector<uint8_t> &fileData, int64_t sampleRate);
     T clamp(T v1, T minValue, T maxValue);
 
     //=============================================================
@@ -172,7 +172,7 @@ private:
 
     //=============================================================
     AudioFileFormat audioFileFormat;
-    uint32_t sampleRate;
+    int64_t sampleRate;
     int bitDepth;
 };
 

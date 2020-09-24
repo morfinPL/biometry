@@ -7,7 +7,6 @@ namespace {
 	{
 		int powerOfTwo = 1;
 		int result = 0;
-		const int center = image.at<char>(row, col);
 		for (const int& i : { -1, 0, 1 })
 		{
 			for (const int& j : { -1, 0, 1 })

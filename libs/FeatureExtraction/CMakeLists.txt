@@ -13,13 +13,9 @@ set(SOURCES
 	src/FeatureExtraction.cpp
 )
 
-add_library(${PROJECT_NAME} ${SOURCES} ${HEADERS})
-include_directories(
-	${CMAKE_CURRENT_SOURCE_DIR}/include
-	${CMAKE_CURRENT_SOURCE_DIR}/src
+set(TESTS
+	test/FeatureExtraction_tests.cpp
 )
-link_directories(${CMAKE_BINARY_DIR}/bin)
-target_link_libraries(${PROJECT_NAME} ${LIBS})
-set_property(TARGET ${PROJECT_NAME} PROPERTY FOLDER "libs")
-set_target_properties(${PROJECT_NAME} PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin/libs)
-set_target_properties(${PROJECT_NAME} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin/libs)
+
+add_shared_library(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR} ${SOURCES} ${HEADERS} ${LIBS})
+add_tests(${PROJECT_NAME} "${TESTS}")

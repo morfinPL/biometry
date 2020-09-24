@@ -1,6 +1,6 @@
 include(../../cmake/tests.cmake)
-set(PROJECT_NAME Configuration)
-project(${PROJECT_NAME})
+include(../../cmake/project_management.cmake)
+project(Configuration)
 
 set(HEADERS
 	include/Configuration.h
@@ -14,13 +14,5 @@ set(TESTS
 	test/Configuration_tests.cpp
 )
 
-add_library(${PROJECT_NAME} ${SOURCES} ${HEADERS})
-include_directories(
-	${CMAKE_CURRENT_SOURCE_DIR}/include
-	${CMAKE_CURRENT_SOURCE_DIR}/src
-)
-link_directories(${CMAKE_BINARY_DIR}/bin)
-set_property(TARGET ${PROJECT_NAME} PROPERTY FOLDER "libs")
-set_target_properties(${PROJECT_NAME} PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin/libs)
-set_target_properties(${PROJECT_NAME} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin/libs)
+add_shared_library(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR} ${SOURCES} ${HEADERS})
 add_tests(${PROJECT_NAME} "${TESTS}")

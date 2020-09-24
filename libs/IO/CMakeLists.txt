@@ -1,4 +1,5 @@
 include(../../cmake/tests.cmake)
+include(../../cmake/project_management.cmake)
 project(IO)
 
 set(LIBS
@@ -16,14 +17,11 @@ set(SOURCES
 	src/IO.cpp
 )
 
-add_library(${PROJECT_NAME} ${SOURCES} ${HEADERS})
-include_directories(
-	${CMAKE_CURRENT_SOURCE_DIR}/include
-	${CMAKE_CURRENT_SOURCE_DIR}/src
-	${CMAKE_CURRENT_SOURCE_DIR}/../AudioFile/include
+set(TESTS
+	test/IO_tests.cpp
 )
-link_directories(${CMAKE_BINARY_DIR}/bin)
-target_link_libraries(${PROJECT_NAME} ${LIBS})
-set_property(TARGET ${PROJECT_NAME} PROPERTY FOLDER "libs")
-set_target_properties(${PROJECT_NAME} PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin/libs)
-set_target_properties(${PROJECT_NAME} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin/libs)
+
+add_shared_library(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR} ${SOURCES} ${HEADERS} ${LIBS})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../AudioFile/include)
+add_tests(${PROJECT_NAME} "${TESTS}")
+target_link_libraries(${PROJECT_NAME}_tests opencv_core)

@@ -59,10 +59,7 @@ std::map<int, std::vector<cv::Mat>> IO::readGrayscaleDataset(const std::string& 
 		{
 			const auto label = std::stoi(p.path().filename());
 			const auto images = readGrayImages(findFilesWithExtensionsInDirectory(p.path().string(), extension));
-			for (const auto& image : images)
-			{
-				dataset.emplace(label, images);
-			}
+			dataset.emplace(label, images);
 		}
 	}
 	return dataset;

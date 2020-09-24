@@ -1,4 +1,6 @@
-# Biometry ![CI](https://github.com/morfinPL/biometry/workflows/CI/badge.svg)
+# Biometry ![CI](https://github.com/morfinPL/biometry/workflows/CI/badge.svg) [![codecov](https://codecov.io/gh/morfinPL/biometry/branch/master/graph/badge.svg)](https://codecov.io/gh/morfinPL/biometry)
+
+
 
 This is repo for lesson in Lodz University of Technology.
 
