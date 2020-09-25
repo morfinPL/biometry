@@ -17,7 +17,7 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake -DCMAKE_BUILD_TYPE=Release -DCI=ON -S .. -B .
+          cmake -DCMAKE_BUILD_TYPE=Release -S .. -B .
       - name: Build
         run: |
           cd build
@@ -35,7 +35,7 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake -DCMAKE_BUILD_TYPE=Debug -DCI=ON -S .. -B .
+          cmake -DCMAKE_BUILD_TYPE=Debug -S .. -B .
       - name: Build
         run: |
           cd build
@@ -43,7 +43,7 @@ jobs:
       - name: Test
         run: |
           cd build
-          ctest --extra-verbose -C Debug -j 1
+          ctest --output-on-failure -C Debug -j 1
   Coverage:
     runs-on: self-hosted
     steps:
