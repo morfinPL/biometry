@@ -4,7 +4,7 @@
 
 #include <IO.h>
 
-TEST_CASE("AIOreadGrayImages")
+TEST_CASE("AIOReadGrayImages")
 {
-	const auto images = IO::findFilesWithExtensionsInDirectory("..", ".jpg");
+	const auto images = IO::findFilesWithExtensionsInDirectory(".", ".jpg");
 }

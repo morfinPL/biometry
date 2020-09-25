@@ -13,7 +13,7 @@ namespace {
 			{
 				if (i != 0 || j != 0)
 				{
-					if (image.at<char>(row, col) < image.at<char>(row + i, col + j))
+					if (image.at<uchar>(row, col) < image.at<uchar>(row + i, col + j))
 					{
 						result += powerOfTwo;
 					}
@@ -28,7 +28,7 @@ namespace {
 std::pair<std::vector<int>, cv::Mat> FeatureExtraction::localBinaryPatternsHistogram(const cv::Mat& image)
 {
 	cv::Mat result = cv::Mat::zeros(image.rows, image.cols, CV_8UC1);
-	std::vector<int> histogram(256);
+	std::vector<int> histogram(256, 0);
 	for (int row = 1; row < image.rows - 1; row++)
 	{
 		for (int col = 1; col < image.cols - 1; col++)
