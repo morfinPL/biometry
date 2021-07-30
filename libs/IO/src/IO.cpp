@@ -12,7 +12,7 @@
 
 namespace
 {
-	bool hasEnding(const std::string& fullString, const std::string& ending)
+	bool hasEnding(const std::string &fullString, const std::string &ending)
 	{
 		if (fullString.size() < ending.length())
 		{
@@ -20,40 +20,40 @@ namespace
 		}
 		return (0 == fullString.compare(fullString.length() - ending.length(), ending.length(), ending));
 	}
-}
 
-std::vector<std::string> IO::findFilesWithExtensionsInDirectory(const std::string& directory, const std::string& extension)
-{
-	std::vector<std::string> pngs;
-	for (const auto& p : std::filesystem::directory_iterator(directory))
+	std::vector<cv::Mat> readGrayImages(const std::vector<std::string> &paths)
 	{
-		if (p.is_regular_file() && hasEnding(p.path().filename().string(), extension))
+		std::vector<cv::Mat> images;
+		for (const auto &path : paths)
 		{
-			pngs.emplace_back(p.path().string());
+			cv::Mat image = cv::imread(path);
+			if (image.channels() == 3)
+			{
+				cv::cvtColor(image, image, cv::COLOR_BGR2GRAY);
+			}
+			images.emplace_back(image);
 		}
+		return images;
 	}
-	return pngs;
-}
 
-std::vector<cv::Mat> IO::readGrayImages(const std::vector<std::string>& paths)
-{
-	std::vector<cv::Mat> images;
-	for (const auto& path : paths)
+	std::vector<std::string> findFilesWithExtensionsInDirectory(const std::string &directory, const std::string &extension)
 	{
-		cv::Mat image = cv::imread(path);
-		if (image.channels() == 3)
+		std::vector<std::string> pngs;
+		for (const auto &p : std::filesystem::directory_iterator(directory))
 		{
-			cv::cvtColor(image, image, cv::COLOR_BGR2GRAY);
+			if (p.is_regular_file() && hasEnding(p.path().filename().string(), extension))
+			{
+				pngs.emplace_back(p.path().string());
+			}
 		}
-		images.emplace_back(image);
+		return pngs;
 	}
-	return images;
 }
 
-std::map<int, std::vector<cv::Mat>> IO::readGrayscaleDataset(const std::string& datasetPath, const std::string& extension)
+std::map<int, std::vector<cv::Mat>> IO::readGrayscaleDataset(const std::string &datasetPath, const std::string &extension)
 {
 	std::map<int, std::vector<cv::Mat>> dataset;
-	for (const auto& p : std::filesystem::directory_iterator(datasetPath))
+	for (const auto &p : std::filesystem::directory_iterator(datasetPath))
 	{
 		if (p.is_directory())
 		{
@@ -65,8 +65,7 @@ std::map<int, std::vector<cv::Mat>> IO::readGrayscaleDataset(const std::string& 
 	return dataset;
 }
 
-
-void IO::displayImage(const std::string& title, const cv::Mat& image)
+void IO::displayImage(const std::string &title, const cv::Mat &image)
 {
 	cv::imshow(title, image);
 	cv::waitKey();
@@ -74,25 +73,25 @@ void IO::displayImage(const std::string& title, const cv::Mat& image)
 
 void IO::saveWavToTxt(const std::string &outputPath, const AudioFile<double> &sound)
 {
-    auto output = std::ofstream(outputPath);
-    for (auto sample = 0; sample < sound.getNumSamplesPerChannel(); sample++)
-    {
-        output << std::fixed << std::setprecision(std::numeric_limits<double>::digits) << static_cast<double>(sample) / sound.getSampleRate() << "\t";
-        for (auto channel = 0; channel < sound.getNumChannels(); channel++)
-        {
-            output << std::fixed << std::setprecision(std::numeric_limits<double>::digits) << sound.samples[channel][sample] << "\t";
-        }
-        output << std::endl;
-    }
-    output.flush();
-    output.close();
+	auto output = std::ofstream(outputPath);
+	for (auto sample = 0; sample < sound.getNumSamplesPerChannel(); sample++)
+	{
+		output << std::fixed << std::setprecision(std::numeric_limits<double>::digits) << static_cast<double>(sample) / sound.getSampleRate() << "\t";
+		for (auto channel = 0; channel < sound.getNumChannels(); channel++)
+		{
+			output << std::fixed << std::setprecision(std::numeric_limits<double>::digits) << sound.samples[channel][sample] << "\t";
+		}
+		output << std::endl;
+	}
+	output.flush();
+	output.close();
 }
 
-std::vector<AudioFile<double>> IO::readWavDataset(const std::string& datasetPath)
+std::vector<AudioFile<double>> IO::readWavDataset(const std::string &datasetPath)
 {
 	std::vector<AudioFile<double>> data;
 	const auto wavs = findFilesWithExtensionsInDirectory(datasetPath, ".wav");
-	for (const auto& wav : wavs)
+	for (const auto &wav : wavs)
 	{
 		AudioFile<double> input;
 		input.load(wav);
