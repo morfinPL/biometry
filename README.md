@@ -5,9 +5,9 @@
 This is repo for lesson in Lodz University of Technology.
 
 ## Requirements
-- [CMake](https://cmake.org/download/) greater than 3.16.4,
-- [Catch 2.11.1](https://github.com/catchorg/Catch2/tree/v2.11.0),
-- [OpenCV 4.2.0](https://github.com/opencv/opencv/tree/4.2.0) with [contribs](https://github.com/opencv/opencv_contrib/tree/4.2.0).
+- [CMake](https://cmake.org/download/) greater than 3.25.2,
+- [Catch v3.3.1](https://github.com/catchorg/Catch2/tree/v3.3.1),
+- [OpenCV 4.7.0](https://github.com/opencv/opencv/tree/4.7.0) with [contribs](https://github.com/opencv/opencv_contrib/tree/4.7.0).
 
 ## Instalation of requirements
 
@@ -22,16 +22,16 @@ Windows version:
 ```
 git clone https://github.com/catchorg/Catch2.git
 cd Catch2
-git checkout v2.11.1
+git checkout v3.3.1
 mkdir build
 cd build
-cmake -G "Visual Studio 16 2019" -A x64 -D CMAKE_INSTALL_PREFIX:PATH=YOUR_CATCH_INSTALL_DIR ..
+cmake -G "Visual Studio 17 2022" -A x64 -D CMAKE_INSTALL_PREFIX:PATH=YOUR_CATCH_INSTALL_DIR ..
 cmake --build . --config Debug
 cmake --build . --config Debug --target INSTALL
 cmake --build . --config Release
 cmake --build . --config Release --target INSTALL
 ```
-To be precise **-G** flag is a generator, **-A** is selected architecture. This is only example and you can choose some different [option](https://cmake.org/cmake/help/v3.16/manual/cmake-generators.7.html#cmake-generators). At the end you must set environmental variable **CATCH_DIR** to **YOUR_CATCH_INSTALL_DIR**. Now you can delete build and cloned repository.
+To be precise **-G** flag is a generator, **-A** is selected architecture. This is only example and you can choose some different [option](https://cmake.org/cmake/help/v3.25/manual/cmake-generators.7.html#cmake-generators). At the end you must set environmental variable **CATCH_DIR** to **YOUR_CATCH_INSTALL_DIR**. Now you can delete build and cloned repository.
 
 ### OpenCV
 
@@ -40,14 +40,14 @@ Windows version:
 ```
 git clone https://github.com/opencv/opencv_contrib.git
 cd opencv_contrib
-git checkout 4.2.0
+git checkout 4.7.0
 cd ..
-git clone https://github.com/Itseez/opencv.git
+git clone https://github.com/opencv/opencv.git
 cd opencv
-git checkout 4.2.0
+git checkout 4.7.0
 mkdir build
 cd build
-cmake -G "Visual Studio 16 2019" -A x64 ^
+cmake -G "Visual Studio 17 2022" -A x64 ^
 -D CMAKE_INSTALL_PREFIX=YOUR_OPENCV_INSTALL_DIR ^
 -D INSTALL_PYTHON_EXAMPLES=OFF ^
 -D INSTALL_C_EXAMPLES=OFF ^
@@ -72,7 +72,7 @@ At the end you must set environmental variable **OPENCV_DIR** to **YOUR_OPENCV_I
 To create project (in case of Visual Studio this command produce VS Solution), you should create directory **build** in your repository directory and use command:
 
 ```
-cmake -G "Visual Studio 16 2019" -A x64 ..
+cmake -G "Visual Studio 17 2022" -A x64 ..
 ```
 
 ## Build a project
