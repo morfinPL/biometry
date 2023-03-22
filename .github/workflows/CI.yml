@@ -6,7 +6,6 @@ on:
   pull_request:
     branches: [master]
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   pre-commit-check:
     runs-on: self-hosted
@@ -20,8 +19,24 @@ jobs:
           pip install pre-commit lizard ;
       - name: checks
         run: .venv\Scripts\activate ; pre-commit run --all-files
+  cpd-check:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v3
+      - name: Configure
+        run: |
+          mkdir build
+          cd build
+          cmake -D LINKAGE=SHARED -D BUILD_ENABLE_CPD=ON -D 3RDPARTY_LIBRARIES="Catch2;OpenCV" -D 3RDPARTY_LIBRARIES_VERSIONS="3.3.1;4.7.0" -S .. -B .
+      - name: CPD check
+        run: |
+          cd build
+          cmake --build . --target CPD
   Release:
-    needs: pre-commit-check
+    needs: [
+            pre-commit-check,
+            cpd-check,
+           ]
     runs-on: ubuntu-latest
     container: morfin/myalpine:3.17.2_CMake_3.25.2_OpenCV_4.7.0_Catch_v3.3.1_Release
     steps:
@@ -40,7 +55,10 @@ jobs:
           cd build
           ctest --output-on-failure -C Release -j 1
   Debug:
-    needs: pre-commit-check
+    needs: [
+            pre-commit-check,
+            cpd-check,
+           ]
     runs-on: ubuntu-latest
     container: morfin/myalpine:3.17.2_CMake_3.25.2_OpenCV_4.7.0_Catch_v3.3.1_Debug
     steps:
@@ -59,7 +77,10 @@ jobs:
           cd build
           ctest --output-on-failure -C Debug -j 1
   Coverage:
-    needs: pre-commit-check
+    needs: [
+            Release,
+            Debug,
+           ]
     runs-on: self-hosted
     steps:
       - uses: actions/checkout@v3
