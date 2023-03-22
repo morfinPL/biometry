@@ -8,7 +8,20 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
+  pre-commit-check:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install tools
+        run: >
+          python -m virtualenv .venv ;
+          .venv\Scripts\activate ;
+          python -m pip install --upgrade pip ;
+          pip install pre-commit lizard ;
+      - name: checks
+        run: .venv\Scripts\activate ; pre-commit run --all-files
   Release:
+    needs: pre-commit-check
     runs-on: ubuntu-latest
     container: morfin/myalpine:3.17.2_CMake_3.25.2_OpenCV_4.7.0_Catch_v3.3.1_Release
     steps:
@@ -17,7 +30,7 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake -DCMAKE_BUILD_TYPE=Release -S .. -B .
+          cmake -D LINKAGE=SHARED -D 3RDPARTY_LIBRARIES="Catch2;OpenCV" -D 3RDPARTY_LIBRARIES_VERSIONS="3.3.1;4.7.0" -DCMAKE_BUILD_TYPE=Release -S .. -B .
       - name: Build
         run: |
           cd build
@@ -27,6 +40,7 @@ jobs:
           cd build
           ctest --output-on-failure -C Release -j 1
   Debug:
+    needs: pre-commit-check
     runs-on: ubuntu-latest
     container: morfin/myalpine:3.17.2_CMake_3.25.2_OpenCV_4.7.0_Catch_v3.3.1_Debug
     steps:
@@ -35,7 +49,7 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake -DCMAKE_BUILD_TYPE=Debug -S .. -B .
+          cmake -D LINKAGE=SHARED -D 3RDPARTY_LIBRARIES="Catch2;OpenCV" -D 3RDPARTY_LIBRARIES_VERSIONS="3.3.1;4.7.0" -DCMAKE_BUILD_TYPE=Debug -S .. -B .
       - name: Build
         run: |
           cd build
@@ -45,6 +59,7 @@ jobs:
           cd build
           ctest --output-on-failure -C Debug -j 1
   Coverage:
+    needs: pre-commit-check
     runs-on: self-hosted
     steps:
       - uses: actions/checkout@v3
@@ -52,7 +67,7 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake -DCMAKE_BUILD_TYPE=Debug -DBUILD_ENABLE_COVERAGE=ON -S .. -B .
+          cmake -D LINKAGE=SHARED -D 3RDPARTY_LIBRARIES="Catch2;OpenCV" -D 3RDPARTY_LIBRARIES_VERSIONS="3.3.1;4.7.0" -DCMAKE_BUILD_TYPE=Debug -DBUILD_ENABLE_COVERAGE=ON -S .. -B .
       - name: Compute Coverage
         run: |
           cd build

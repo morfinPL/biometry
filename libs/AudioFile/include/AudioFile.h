@@ -20,14 +20,14 @@
  */
 //=======================================================================
 
-#ifndef _AS_AudioFile_h
-#define _AS_AudioFile_h
+#ifndef LIBS_AUDIOFILE_INCLUDE_AUDIOFILE_H_
+#define LIBS_AUDIOFILE_INCLUDE_AUDIOFILE_H_
 
 #include <algorithm>
-#include <iostream>
-#include <vector>
 #include <assert.h>
+#include <iostream>
 #include <string>
+#include <vector>
 
 //=============================================================
 /** The different types of audio file, plus some other types to
@@ -43,10 +43,10 @@ enum class AudioFileFormat
 };
 
 //=============================================================
-template<class T>
+template <class T>
 class AudioFile
 {
-public:
+   public:
     //=============================================================
     typedef std::vector<std::vector<T>> AudioBuffer;
 
@@ -58,12 +58,12 @@ public:
     /** Loads an audio file from a given file path.
      * @Returns true if the file was successfully loaded
      */
-    AUDIOFILE_DLL_API bool load(const std::string &filePath);
+    AUDIOFILE_DLL_API bool load(const std::string& filePath);
 
     /** Saves an audio file to a given file path.
      * @Returns true if the file was successfully saved
      */
-    AUDIOFILE_DLL_API bool save(const std::string &filePath, AudioFileFormat format = AudioFileFormat::Wave);
+    AUDIOFILE_DLL_API bool save(const std::string& filePath, AudioFileFormat format = AudioFileFormat::Wave);
 
     //=============================================================
     /** @Returns the sample rate */
@@ -95,7 +95,7 @@ public:
     /** Set the audio buffer for this AudioFile by copying samples from another buffer.
      * @Returns true if the buffer was copied successfully.
      */
-    AUDIOFILE_DLL_API bool setAudioBuffer(AudioBuffer &newBuffer);
+    AUDIOFILE_DLL_API bool setAudioBuffer(AudioBuffer& newBuffer);
 
     /** Sets the audio buffer to a given number of channels and number of samples per channel. This will try to preserve
      * the existing audio, adding zeros to any new channels or new samples in a given channel.
@@ -124,7 +124,7 @@ public:
      */
     AudioBuffer samples;
 
-private:
+   private:
     //=============================================================
     enum class Endianness
     {
@@ -133,9 +133,9 @@ private:
     };
 
     //=============================================================
-    AudioFileFormat determineAudioFileFormat(std::vector<uint8_t> &fileData);
-    bool decodeWaveFile(std::vector<uint8_t> &fileData);
-    bool decodeAiffFile(std::vector<uint8_t> &fileData);
+    AudioFileFormat determineAudioFileFormat(std::vector<uint8_t>& fileData);
+    bool decodeWaveFile(std::vector<uint8_t>& fileData);
+    bool decodeAiffFile(std::vector<uint8_t>& fileData);
 
     //=============================================================
     bool saveToWaveFile(std::string filePath);
@@ -145,9 +145,9 @@ private:
     void clearAudioBuffer();
 
     //=============================================================
-    int32_t fourBytesToInt(std::vector<uint8_t> &source, int startIndex, Endianness endianness = Endianness::LittleEndian);
-    int16_t twoBytesToInt(std::vector<uint8_t> &source, int startIndex, Endianness endianness = Endianness::LittleEndian);
-    int getIndexOfString(std::vector<uint8_t> &source, std::string s);
+    int32_t fourBytesToInt(std::vector<uint8_t>& source, int startIndex, Endianness endianness = Endianness::LittleEndian);
+    int16_t twoBytesToInt(std::vector<uint8_t>& source, int startIndex, Endianness endianness = Endianness::LittleEndian);
+    int getIndexOfString(std::vector<uint8_t>& source, std::string s);
 
     //=============================================================
     T sixteenBitIntToSample(int16_t sample);
@@ -157,18 +157,18 @@ private:
     uint8_t sampleToSingleByte(T sample);
     T singleByteToSample(uint8_t sample);
 
-    int64_t getAiffSampleRate(std::vector<uint8_t> &fileData, int sampleRateStartIndex);
-    bool tenByteMatch(std::vector<uint8_t> &v1, int startIndex1, std::vector<uint8_t> &v2, int startIndex2);
-    void addSampleRateToAiffData(std::vector<uint8_t> &fileData, int64_t sampleRate);
+    int64_t getAiffSampleRate(std::vector<uint8_t>& fileData, int sampleRateStartIndex);
+    bool tenByteMatch(std::vector<uint8_t>& v1, int startIndex1, std::vector<uint8_t>& v2, int startIndex2);
+    void addSampleRateToAiffData(std::vector<uint8_t>& fileData, int64_t sampleRate);
     T clamp(T v1, T minValue, T maxValue);
 
     //=============================================================
-    void addStringToFileData(std::vector<uint8_t> &fileData, std::string s);
-    void addInt32ToFileData(std::vector<uint8_t> &fileData, int32_t i, Endianness endianness = Endianness::LittleEndian);
-    void addInt16ToFileData(std::vector<uint8_t> &fileData, int16_t i, Endianness endianness = Endianness::LittleEndian);
+    void addStringToFileData(std::vector<uint8_t>& fileData, std::string s);
+    void addInt32ToFileData(std::vector<uint8_t>& fileData, int32_t i, Endianness endianness = Endianness::LittleEndian);
+    void addInt16ToFileData(std::vector<uint8_t>& fileData, int16_t i, Endianness endianness = Endianness::LittleEndian);
 
     //=============================================================
-    bool writeDataToFile(std::vector<uint8_t> &fileData, std::string filePath);
+    bool writeDataToFile(std::vector<uint8_t>& fileData, std::string filePath);
 
     //=============================================================
     AudioFileFormat audioFileFormat;
@@ -176,4 +176,4 @@ private:
     int bitDepth;
 };
 
-#endif /* AudioFile_h */
+#endif  // LIBS_AUDIOFILE_INCLUDE_AUDIOFILE_H_

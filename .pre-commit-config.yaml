@@ -1,0 +1,58 @@
+fail_fast: false
+repos:
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+    -   id: trailing-whitespace
+    -   id: end-of-file-fixer
+    -   id: check-added-large-files
+    -   id: forbid-new-submodules
+    -   id: check-json
+    -   id: check-yaml
+        args: [
+                --allow-multiple-documents,
+                .pre-commit-config.yaml,
+              ]
+-   repo: https://github.com/pre-commit/mirrors-clang-format
+    rev: v15.0.7
+    hooks:
+    -   id: clang-format
+-   repo: https://github.com/cpplint/cpplint
+    rev: 1.6.1
+    hooks:
+    -   id: cpplint
+        args: [
+                "--verbose=0",
+                "--quiet",
+                "--linelength=120",
+                "--filter=-whitespace,-legal/copyright,-readability/namespace,-runtime/indentation_namespace,-build/namespaces,-build/include_order,-runtime_references,-build/c++17",
+                "--exclude=libs/AudioFile/include/AudioFile.h",
+                "--exclude=libs/AudioFile/src/AudioFile.cpp",
+              ]
+-   repo: https://github.com/pocc/pre-commit-hooks
+    rev: v1.3.5
+    hooks:
+    -   id: cppcheck
+        args: [
+                "--version=2.10",
+                "--enable=warning,portability,performance,information,style",
+                "--inline-suppr",
+                "--suppress=missingInclude",
+                "--template=vs",
+                "--error-exitcode=1"
+              ]
+-   repo: https://github.com/Takishima/cmake-pre-commit-hooks
+    rev: v1.8.0
+    hooks:
+    -   id: lizard
+        args: [
+                '--exclude="libs/AudioFile/src/*"',
+                --verbose,
+                --languages=cpp,
+                --warning-msvs,
+                --modified,
+                --Threshold=token_count=400,
+                --CCN 7,
+                --length 50,
+                --arguments 6,
+              ]

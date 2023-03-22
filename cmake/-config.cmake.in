@@ -1,0 +1,3 @@
+# Load information for each installed configuration.
+get_filename_component(CURRENT_IMPORT_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+include("${CURRENT_IMPORT_DIR}/lib/cmake/@LIBRARY_NAME@/@LIBRARY_NAME@.cmake")

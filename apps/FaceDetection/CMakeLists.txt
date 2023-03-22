@@ -1,25 +1,27 @@
-set(PROJECT_NAME FaceDetection)
+include(../../cmake/tests.cmake)
+include(../../cmake/project_management.cmake)
+
+get_filename_component(PROJECT_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME)
 project(${PROJECT_NAME})
 
-set(LIBS ${LIBS} opencv_core)
-set(LIBS ${LIBS} opencv_highgui)
-set(LIBS ${LIBS} Configuration)
-set(LIBS ${LIBS} IO)
-set(LIBS ${LIBS} FeatureExtraction)
-set(LIBS ${LIBS} Classification)
+set(LIBS
+	Configuration
+	IO
+	FeatureExtraction
+	Classification
+)
+
+set(3RD_PARTY_LIBS
+	opencv_core
+	opencv_highgui
+)
 
 set(SOURCES
 	src/main.cpp
 )
 
-link_directories(${CMAKE_BINARY_DIR}/bin)
-include_directories(
-	${CMAKE_CURRENT_SOURCE_DIR}/../../libs/Configuration/include
-	${CMAKE_CURRENT_SOURCE_DIR}/../../libs/IO/include
-	${CMAKE_CURRENT_SOURCE_DIR}/../../libs/FeatureExtraction/include
-	${CMAKE_CURRENT_SOURCE_DIR}/../../libs/Classification/include
-)
-add_executable(${PROJECT_NAME} ${SOURCES})
-set_target_properties(${PROJECT_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-target_link_libraries(${PROJECT_NAME} ${LIBS})
-set_property(TARGET ${PROJECT_NAME} PROPERTY FOLDER "apps")
+add_app(${PROJECT_NAME} ${SOURCES})
+
+target_link_libraries(${PROJECT_NAME} PRIVATE ${LIBS})
+
+target_link_libraries(${PROJECT_NAME} PRIVATE ${3RD_PARTY_LIBS})

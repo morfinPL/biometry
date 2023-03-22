@@ -14,37 +14,42 @@
 namespace
 {
 
-	class DTWWrapper
-	{
-    private:
+    class DTWWrapper
+    {
+       private:
         const int size;
         const int size2;
         const double a;
         const int window;
         std::vector<std::unordered_map<int, double>> matrix;
-	public:
-		DTWWrapper(const int size1, const int size2, const int window) : size(size1), size2(size2), a(static_cast<double>(size2) / static_cast<double>(size1)), window(window), matrix(size1) {}
-		double at(const int i, const int j) const
-		{
-			if (i == 0 || j == 0)
-			{
-				return 0.0;
-			}
-			if (i >= 0 && i < size && std::max(1, static_cast<int>(a * i - window)) < j && j < std::min(size2, static_cast<int>(a * i + window)))
-			{
-				return matrix[i].at(j);
-			}
-			return std::numeric_limits<double>::max();
-		}
 
-		void set(const int i, const int j, const double &value)
-		{
-			if (std::max(1, static_cast<int>(a * i - window)) < j && j < std::min(size2, static_cast<int>(a * i + window)))
-			{
-				matrix[i].emplace(j, value);
-			}
-		}
-	};
+       public:
+        DTWWrapper(const int size1, const int size2, const int window)
+            : size(size1), size2(size2), a(static_cast<double>(size2) / static_cast<double>(size1)), window(window), matrix(size1)
+        {
+        }
+        double at(const int i, const int j) const
+        {
+            if (i == 0 || j == 0)
+            {
+                return 0.0;
+            }
+            if (i >= 0 && i < size && std::max(1, static_cast<int>(a * i - window)) < j &&
+                j < std::min(size2, static_cast<int>(a * i + window)))
+            {
+                return matrix[i].at(j);
+            }
+            return std::numeric_limits<double>::max();
+        }
+
+        void set(const int i, const int j, const double& value)
+        {
+            if (std::max(1, static_cast<int>(a * i - window)) < j && j < std::min(size2, static_cast<int>(a * i + window)))
+            {
+                matrix[i].emplace(j, value);
+            }
+        }
+    };
 
     std::vector<std::complex<double>> convertToComplex(const std::vector<double>& doubles)
     {
@@ -56,7 +61,6 @@ namespace
         }
         return result;
     }
-
 
     std::vector<double> computeAbs(const std::vector<std::complex<double>>& dft, const double& threshold)
     {
@@ -76,7 +80,7 @@ namespace
         const int begin;
         const int end;
 
-        SamplesWrapper(const std::vector<double>& samples) : samples(samples), begin(0), end(static_cast<int>(samples.size()))
+        explicit SamplesWrapper(const std::vector<double>& samples) : samples(samples), begin(0), end(static_cast<int>(samples.size()))
         {
         }
 
@@ -147,11 +151,13 @@ namespace
         return dft;
     }
 
-    inline double hz2mel(double f) {
+    inline double hz2mel(double f)
+    {
         return 2595 * std::log10(1 + f / 700);
     }
 
-    inline double mel2hz(double m) {
+    inline double mel2hz(double m)
+    {
         return 700 * (std::pow(10, m / 2595) - 1);
     }
 
@@ -207,9 +213,17 @@ namespace
         }
         return result;
     }
+
+    void fillResultWithZeros(int index, const int samplesNumber, AudioFile<double>* result)
+    {
+        for (; index < samplesNumber; index++)
+        {
+            result->samples.front()[index] = 0;
+        }
+    }
 }
 
-std::pair<std::vector<double>, AudioFile<double>> SoundProcessing::autoCorelation(const AudioFile<double> &input, const int N)
+std::pair<std::vector<double>, AudioFile<double>> SoundProcessing::autoCorelation(const AudioFile<double>& input, const int N)
 {
     AudioFile<double> result = input;
     std::vector<double> frequences;
@@ -239,21 +253,18 @@ std::pair<std::vector<double>, AudioFile<double>> SoundProcessing::autoCorelatio
             result.samples.front()[j] = sin(arg);
         }
     }
-    for (; i < input.getNumSamplesPerChannel(); i++)
-    {
-        result.samples.front()[i] = 0;
-    }
+    fillResultWithZeros(i, input.getNumSamplesPerChannel(), &result);
     return {std::move(frequences), std::move(result)};
 }
 
-std::pair<std::vector<double>, AudioFile<double>> SoundProcessing::fourier(const AudioFile<double> &input, const int N, const double &threshold)
+std::pair<std::vector<double>, AudioFile<double>> SoundProcessing::fourier(const AudioFile<double>& input, const int N,
+                                                                           const double& threshold)
 {
     const double frequencyResolution = 1.0 * input.getSampleRate() / N;
     AudioFile<double> result = input;
     AudioFile<double> resultTemp = input;
     std::vector<double> frequences;
-    auto i = 0;
-    for (; i + N < input.getNumSamplesPerChannel(); i += N)
+    for (int i = 0; i + N < input.getNumSamplesPerChannel(); i += N)
     {
         std::vector<double> samples(input.samples.front().begin() + i, input.samples.front().begin() + i + N);
         const auto complexSamples(convertToComplex(samples));
@@ -274,41 +285,38 @@ std::pair<std::vector<double>, AudioFile<double>> SoundProcessing::fourier(const
             result.samples.front()[j] = sin(arg);
         }
     }
-    for (; i < input.getNumSamplesPerChannel(); i++)
-    {
-        result.samples.front()[i] = 0;
-        resultTemp.samples.front()[i] = 0;
-    }
     return {std::move(frequences), std::move(result)};
 }
 
-double distance(const std::vector<double> &vec1, const std::vector<double> &vec2)
+double distance(const std::vector<double>& vec1, const std::vector<double>& vec2)
 {
-	double result = 0.0;
-	for (int i = 0; i < static_cast<int>(vec1.size()); ++i)
-	{
-		result += (vec1[i] - vec2[i]) * (vec1[i] - vec2[i]);
-	}
-	return sqrt(result);
+    double result = 0.0;
+    for (int i = 0; i < static_cast<int>(vec1.size()); ++i)
+    {
+        result += (vec1[i] - vec2[i]) * (vec1[i] - vec2[i]);
+    }
+    return sqrt(result);
 }
 
+// #lizard forgives the complexity
 double SoundProcessing::DTW(const std::vector<std::vector<double>>& input1, const std::vector<std::vector<double>>& input2)
 {
     const int window = 11;
-	const double a = static_cast<double>(input2.size()) / static_cast<double>(input1.size());
+    const double a = static_cast<double>(input2.size()) / static_cast<double>(input1.size());
     DTWWrapper matrix(static_cast<int>(input1.size()), static_cast<int>(input2.size()), window);
-	for (int i = 1; i < static_cast<int>(input1.size()); ++i)
+    for (int i = 1; i < static_cast<int>(input1.size()); ++i)
     {
-        for (int j = std::max(1, static_cast<int>(a * i - window)); j < std::min(static_cast<int>(input2.size()), static_cast<int>(a * i + window)); ++j)
+        for (int j = std::max(1, static_cast<int>(a * i - window));
+             j < std::min(static_cast<int>(input2.size()), static_cast<int>(a * i + window)); ++j)
         {
             const auto cost = distance(input1[i - 1], input2[j - 1]);
-            const auto lastMin = std::min({ matrix.at(i - 1, j), matrix.at(i, j - 1), matrix.at(i - 1, j - 1) });
+            const auto lastMin = std::min({matrix.at(i - 1, j), matrix.at(i, j - 1), matrix.at(i - 1, j - 1)});
             matrix.set(i, j, cost + lastMin);
         }
     }
-    std::pair<int, int> currentCell (static_cast<int>(input1.size()) -1, static_cast<int>(input2.size()) -1);
-    std::pair<int, int> end(0,0);
-	double result = 0.0;
+    std::pair<int, int> currentCell(static_cast<int>(input1.size()) - 1, static_cast<int>(input2.size()) - 1);
+    std::pair<int, int> end(0, 0);
+    double result = 0.0;
     while (currentCell != end)
     {
         std::pair<int, int> neigborA(currentCell.first - 1, currentCell.second);
@@ -321,7 +329,7 @@ double SoundProcessing::DTW(const std::vector<std::vector<double>>& input1, cons
             tempValue = matrix.at(neigborB.first, neigborB.second);
             currentCell = neigborB;
         }
-        if (matrix.at(neigborC.first,neigborC.second) < tempValue)
+        if (matrix.at(neigborC.first, neigborC.second) < tempValue)
         {
             currentCell = neigborC;
             tempValue = matrix.at(neigborC.first, neigborC.second);
@@ -331,7 +339,8 @@ double SoundProcessing::DTW(const std::vector<std::vector<double>>& input1, cons
     return result;
 }
 
-std::vector<std::vector<double>> SoundProcessing::mfcc(const std::vector<double>& input, const int K, const double &d, const double &gamma, const int F, const int N, const double &frequencyResolution)
+std::vector<std::vector<double>> SoundProcessing::mfcc(const std::vector<double>& input, const int K, const double& d, const double& gamma,
+                                                       const int F, const int N, const double& frequencyResolution)
 {
     auto i = 0;
     std::vector<std::vector<double>> filterBank;
@@ -345,14 +354,14 @@ std::vector<std::vector<double>> SoundProcessing::mfcc(const std::vector<double>
         std::vector<double> samples(input.begin() + i, input.begin() + i + N);
         samples = initHammington(samples);
         const auto complexSamples(convertToComplex(samples));
-        const auto resultAbs = computeAbs(dfft(complexSamples, false), 0.0);        
+        const auto resultAbs = computeAbs(dfft(complexSamples, false), 0.0);
         std::vector<double> sValues;
-        for(int j = 0; j < K; ++j)
+        for (int j = 0; j < K; ++j)
         {
             sValues.emplace_back(std::pow(std::log(computeS(resultAbs, filterBank[j])), gamma));
         }
         results.push_back({});
-        for(int j = 1; j < 1 + F; ++j)
+        for (int j = 1; j < 1 + F; ++j)
         {
             results.back().emplace_back(computeMel(j, K, sValues));
         }
@@ -360,8 +369,9 @@ std::vector<std::vector<double>> SoundProcessing::mfcc(const std::vector<double>
     return results;
 }
 
-
-double SoundProcessing::compareSingnalsMFCC(const std::vector<double>& sound1, const std::vector<double>& sound2, const int K, const double& d, const double& gamma, const int F, const int N, const double& frequencyResolution)
+double SoundProcessing::compareSingnalsMFCC(const std::vector<double>& sound1, const std::vector<double>& sound2, const int K,
+                                            const double& d, const double& gamma, const int F, const int N,
+                                            const double& frequencyResolution)
 {
     const auto mel1 = SoundProcessing::mfcc(sound1, K, d, gamma, F, N, frequencyResolution);
     const auto mel2 = SoundProcessing::mfcc(sound2, K, d, gamma, F, N, frequencyResolution);

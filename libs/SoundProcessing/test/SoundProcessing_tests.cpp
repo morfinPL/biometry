@@ -5,5 +5,5 @@
 
 TEST_CASE("ASoundProcessingDTW")
 {
-	SoundProcessing::mfcc({}, 0, 0, 0, 0, 0, 0);
+    SoundProcessing::mfcc({}, 0, 0, 0, 0, 0, 0);
 }

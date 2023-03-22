@@ -1,7 +1,11 @@
 include(../../cmake/tests.cmake)
-project(FeatureExtraction)
+include(../../cmake/project_management.cmake)
 
-set(LIBS
+get_filename_component(PROJECT_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME)
+project(${PROJECT_NAME})
+
+
+set(3RD_PARTY_LIBS
 	opencv_core
 )
 
@@ -17,5 +21,10 @@ set(TESTS
 	test/FeatureExtraction_tests.cpp
 )
 
-add_shared_library(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR} ${SOURCES} ${HEADERS} ${LIBS})
+add_properly_linked_library(${PROJECT_NAME} ${SOURCES} ${HEADERS})
+
+target_link_libraries(${PROJECT_NAME} PRIVATE ${3RD_PARTY_LIBS})
+
 add_tests(${PROJECT_NAME} "${TESTS}")
+
+target_link_libraries(${PROJECT_NAME}_tests PRIVATE ${3RD_PARTY_LIBS})

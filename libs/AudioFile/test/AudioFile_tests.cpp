@@ -5,5 +5,5 @@
 
 TEST_CASE("AAudioFileContruction")
 {
-	AudioFile<double> input;
+    AudioFile<double> input;
 }

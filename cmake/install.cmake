@@ -1,0 +1,7 @@
+function(setup_install_phase)
+    if (DEFINED CMAKE_BUILD_TYPE)
+        configure_file(cmake/-config.cmake.in ${CMAKE_BINARY_DIR}/${LIBRARY_NAME}-config.cmake @ONLY)
+        install(FILES ${CMAKE_BINARY_DIR}/${LIBRARY_NAME}-config.cmake DESTINATION "." RENAME ${LIBRARY_NAME}-config.cmake)
+        install(EXPORT ${LIBRARY_NAME} NAMESPACE ${LIBRARY_NAME}:: DESTINATION "lib/cmake/${LIBRARY_NAME}")
+    endif (DEFINED CMAKE_BUILD_TYPE)
+endfunction(setup_install_phase)

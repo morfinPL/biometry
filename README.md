@@ -4,6 +4,18 @@
 
 This is repo for lesson in Lodz University of Technology.
 
+## Pre-commit hook setup
+
+Please install `cppcheck` in your system.
+
+```powershell
+python -m virtualenv .venv
+.venv\Scripts\activate
+python -m pip install --upgrade pip
+pip install pre-commit lizard
+pre-commit install
+```
+
 ## Requirements
 - [CMake](https://cmake.org/download/) greater than 3.25.2,
 - [Catch v3.3.1](https://github.com/catchorg/Catch2/tree/v3.3.1),

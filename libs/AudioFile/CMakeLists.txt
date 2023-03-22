@@ -1,6 +1,9 @@
 include(../../cmake/tests.cmake)
 include(../../cmake/project_management.cmake)
-project(AudioFile)
+
+get_filename_component(PROJECT_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME)
+project(${PROJECT_NAME})
+
 
 set(HEADERS
 	include/AudioFile.h
@@ -14,5 +17,6 @@ set(TESTS
 	test/AudioFile_tests.cpp
 )
 
-add_shared_library(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR} ${SOURCES} ${HEADERS} ${LIBS})
+add_properly_linked_library(${PROJECT_NAME} ${SOURCES} ${HEADERS})
+
 add_tests(${PROJECT_NAME} "${TESTS}")

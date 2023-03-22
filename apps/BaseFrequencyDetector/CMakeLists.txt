@@ -1,4 +1,8 @@
-project(BaseFrequencyDetector)
+include(../../cmake/tests.cmake)
+include(../../cmake/project_management.cmake)
+
+get_filename_component(PROJECT_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME)
+project(${PROJECT_NAME})
 
 set(LIBS
 	AudioFile
@@ -7,18 +11,16 @@ set(LIBS
 	SoundProcessing
 )
 
+set(3RD_PARTY_LIBS
+	opencv_core
+)
+
 set(SOURCES
 	src/main.cpp
 )
 
-link_directories(${LINK_DIRECTORIES} ${CMAKE_BINARY_DIR}/bin)
-include_directories(
-	${CMAKE_CURRENT_SOURCE_DIR}/../../libs/Configuration/include
-	${CMAKE_CURRENT_SOURCE_DIR}/../../libs/AudioFile/include
-	${CMAKE_CURRENT_SOURCE_DIR}/../../libs/IO/include
-	${CMAKE_CURRENT_SOURCE_DIR}/../../libs/SoundProcessing/include
-)
-add_executable(${PROJECT_NAME} ${SOURCES})
-set_target_properties(${PROJECT_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-target_link_libraries(${PROJECT_NAME} ${LIBS})
-set_property(TARGET ${PROJECT_NAME} PROPERTY FOLDER "apps")
+add_app(${PROJECT_NAME} ${SOURCES})
+
+target_link_libraries(${PROJECT_NAME} PRIVATE ${LIBS})
+
+target_link_libraries(${PROJECT_NAME} PRIVATE ${3RD_PARTY_LIBS})

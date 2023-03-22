@@ -5,5 +5,5 @@
 
 TEST_CASE("ANNClassifierConstruction")
 {
-	Classification::NNClassifier classifier({}, {});
+    Classification::NNClassifier classifier({}, {});
 }
