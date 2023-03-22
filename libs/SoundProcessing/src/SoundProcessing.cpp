@@ -221,6 +221,15 @@ namespace
             result->samples.front()[index] = 0;
         }
     }
+
+    void fillResultWithSinForFrequency(const int index, const int N, const double& frequency, AudioFile<double>* result)
+    {
+        for (int j = index; j < index + N; j++)
+        {
+            const double arg = static_cast<double>(j) / result->getSampleRate() * 2 * M_PI * frequency;
+            result->samples.front()[j] = sin(arg);
+        }
+    }
 }
 
 std::pair<std::vector<double>, AudioFile<double>> SoundProcessing::autoCorelation(const AudioFile<double>& input, const int N)
@@ -247,11 +256,7 @@ std::pair<std::vector<double>, AudioFile<double>> SoundProcessing::autoCorelatio
                 }
             }
         }
-        for (auto j = i; j < i + N; j++)
-        {
-            double arg = static_cast<double>(j) / result.getSampleRate() * 2 * M_PI * frequences.back();
-            result.samples.front()[j] = sin(arg);
-        }
+        fillResultWithSinForFrequency(i, N, frequences.back(), &result);
     }
     fillResultWithZeros(i, input.getNumSamplesPerChannel(), &result);
     return {std::move(frequences), std::move(result)};
@@ -279,11 +284,7 @@ std::pair<std::vector<double>, AudioFile<double>> SoundProcessing::fourier(const
             }
         }
         frequences.push_back(frequencyResolution * (maxs.back() - maxs.front()) / (maxs.size() - 1));
-        for (auto j = i; j < i + N; j++)
-        {
-            double arg = static_cast<double>(j) / result.getSampleRate() * 2 * M_PI * frequences.back();
-            result.samples.front()[j] = sin(arg);
-        }
+        fillResultWithSinForFrequency(i, N, frequences.back(), &result);
     }
     return {std::move(frequences), std::move(result)};
 }
